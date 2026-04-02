@@ -1,0 +1,83 @@
+<div class="page-title-box">
+  <h1>Mes Compétences</h1>
+</div>
+
+<div class="competences-layout">
+  
+  <div class="competences-list">
+    <div *ngIf="competences.length === 0" class="empty-state card">
+      <div class="icon">🚀</div>
+      <h3>Aucune compétence</h3>
+      <p>Ajoutez votre première compétence pour compléter votre profil !</p>
+    </div>
+
+    <div *ngIf="competences.length > 0">
+      <div class="category-section" *ngFor="let entry of groupedCompetences | keyvalue" [hidden]="!entry.value.length">
+        <h3 class="category-title">{{ entry.key }}</h3>
+        
+        <div class="competence-card card" *ngFor="let comp of entry.value">
+          <div class="comp-info">
+            <span class="comp-name">{{ comp.nom }}</span>
+            <span class="badge" [ngClass]="getNiveauClass(comp.niveau)">{{ comp.niveau }}</span>
+          </div>
+          <div class="comp-actions">
+            <button class="icon-btn edit" (click)="editCompetence(comp)" title="Modifier">✏️</button>
+            <button class="icon-btn delete" (click)="deleteCompetence(comp.id, comp.nom)" title="Supprimer">🗑️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="competences-form card">
+    <div class="card-header">
+      <h2>{{ isEditMode ? 'Modifier la compétence' : 'Ajouter une compétence' }}</h2>
+    </div>
+
+    <form [formGroup]="compForm" (ngSubmit)="submit()">
+      <div class="form-group">
+        <label>Nom de la compétence*</label>
+        <input type="text" formControlName="nom" list="techSkills" placeholder="Ex: Java, Angular...">
+        <datalist id="techSkills">
+          <option *ngFor="let skill of commonTechSkills" [value]="skill"></option>
+        </datalist>
+      </div>
+
+      <div class="form-group">
+        <label>Catégorie*</label>
+        <select formControlName="categorie">
+          <option value="TECHNIQUE">Technique</option>
+          <option value="OUTIL">Outil</option>
+          <option value="METHODOLOGIE">Méthodologie</option>
+          <option value="LANGUE">Langue</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Niveau*</label>
+        <div class="niveau-selector">
+          <button type="button" 
+                  *ngFor="let niv of niveaux" 
+                  class="niveau-btn"
+                  [class.active]="compForm.get('niveau')?.value === niv"
+                  (click)="setNiveau(niv)">
+            {{ niv }}
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group" *ngIf="!isEditMode">
+        <label>Date d'acquisition</label>
+        <input type="date" formControlName="dateAcquisition">
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" *ngIf="isEditMode" (click)="resetForm()">Annuler</button>
+        <button type="submit" class="btn btn-primary" [disabled]="compForm.invalid || loading">
+          {{ isEditMode ? 'Enregistrer' : 'Ajouter' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+</div>

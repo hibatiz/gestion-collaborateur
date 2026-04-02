@@ -1,0 +1,39 @@
+/* You can add global styles to this file, and also import other style files */
+
+:root {
+  --primary-color: #1B2A4A;
+  --accent-color: #2E7CF6;
+  --success-color: #10B981;
+  --warning-color: #F59E0B;
+  --danger-color: #EF4444;
+  --bg-color: #F0F4F8;
+  --card-bg: #FFFFFF;
+  --text-dark: #333333;
+  --text-light: #666666;
+  --radius-card: 10px;
+  --radius-input: 6px;
+  --radius-badge: 20px;
+}
+
+body {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-dark);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: var(--radius-card);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 24px;
+}

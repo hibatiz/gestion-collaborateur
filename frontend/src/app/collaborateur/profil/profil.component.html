@@ -1,0 +1,89 @@
+<div class="page-title-box">
+  <h1>{{ profile?.prenom }} {{ profile?.nom }}</h1>
+</div>
+
+<div class="profile-layout" *ngIf="profile">
+  <div class="profile-sidebar">
+    <div class="photo-container">
+      <img [src]="profile.photoUrl ? '/api/uploads/' + profile.photoUrl : 'https://via.placeholder.com/150'" 
+           alt="Profile Photo" class="profile-photo"/>
+      <div class="photo-overlay" (click)="fileInput.click()">
+        <span>📷</span>
+      </div>
+      <input type="file" #fileInput hidden accept="image/*" (change)="onFileSelected($event)">
+    </div>
+  </div>
+
+  <div class="profile-main card">
+    <div class="card-header">
+      <h2>Informations Générales</h2>
+      <button class="btn btn-primary" *ngIf="!isEditMode" (click)="toggleEditMode()">Modifier le profil</button>
+    </div>
+
+    <!-- VIEW MODE -->
+    <div class="view-mode" *ngIf="!isEditMode">
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Poste</label>
+          <p>{{ profile.poste || 'Non renseigné' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Département</label>
+          <p>{{ profile.departement || 'Non renseigné' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Expérience</label>
+          <p>{{ profile.anneesExperience }} ans</p>
+        </div>
+        <div class="info-item">
+          <label>Email</label>
+          <p>{{ profile.email }}</p>
+        </div>
+        <div class="info-item">
+          <label>Téléphone</label>
+          <p>{{ profile.telephone || 'Non renseigné' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDIT MODE -->
+    <div class="edit-mode" *ngIf="isEditMode">
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nom*</label>
+            <input type="text" formControlName="nom">
+          </div>
+          <div class="form-group">
+            <label>Prénom*</label>
+            <input type="text" formControlName="prenom">
+          </div>
+          <div class="form-group">
+            <label>Poste</label>
+            <input type="text" formControlName="poste">
+          </div>
+          <div class="form-group">
+            <label>Département</label>
+            <input type="text" formControlName="departement">
+          </div>
+          <div class="form-group">
+            <label>Années d'expérience</label>
+            <input type="number" formControlName="anneesExperience" min="0" max="50">
+          </div>
+          <div class="form-group">
+            <label>Email*</label>
+            <input type="email" formControlName="email">
+          </div>
+          <div class="form-group">
+            <label>Téléphone</label>
+            <input type="text" formControlName="telephone">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="toggleEditMode()" [disabled]="loading">Annuler</button>
+          <button type="submit" class="btn btn-success" [disabled]="profileForm.invalid || loading">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

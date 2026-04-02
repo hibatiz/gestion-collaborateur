@@ -1,0 +1,79 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0 2rem;
+    height: 70px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+
+    .nav-brand {
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            color: var(--accent-color);
+            background: white;
+            padding: 5px 10px;
+            border-radius: 8px;
+        }
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 2rem;
+
+        a {
+            color: #d1d5db;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s, border-bottom 0.2s;
+            padding-bottom: 5px;
+            border-bottom: 2px solid transparent;
+
+            &:hover, &.active {
+                color: white;
+                border-bottom: 2px solid var(--accent-color);
+            }
+        }
+    }
+
+    .nav-user {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .logout-btn {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: var(--radius-input);
+            cursor: pointer;
+            transition: background 0.2s;
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+        }
+    }
+}
+
+.content-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
