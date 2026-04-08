@@ -47,4 +47,17 @@ export class TokenService {
   isLoggedIn(): boolean {
     return !!this.getToken() && !this.isTokenExpired();
   }
+
+  getUsername(): string | null {
+    const token = this.getToken();
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        return payload.sub || null;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  }
 }

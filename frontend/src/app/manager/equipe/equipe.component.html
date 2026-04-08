@@ -1,0 +1,188 @@
+<div class="equipe-page">
+
+  <div class="page-header">
+    <h1>Constitution d'Équipe</h1>
+    <p>Sélectionnez des collaborateurs et vérifiez la couverture des compétences</p>
+  </div>
+
+  <div class="equipe-layout">
+
+    <!-- LEFT PANEL — Builder -->
+    <div class="builder-panel">
+
+      <!-- Project Name -->
+      <div class="form-section">
+        <label class="section-label">📁 Nom du projet *</label>
+        <input [(ngModel)]="projetNom" type="text"
+               placeholder="Ex: Refonte plateforme web"
+               class="project-input">
+      </div>
+
+      <!-- Required Competences -->
+      <div class="form-section">
+        <label class="section-label">⭐ Compétences requises</label>
+        <div class="tag-input-box">
+          <span class="tag" *ngFor="let tag of competencesRequises">
+            {{ tag }}
+            <button type="button" (click)="removeCompetenceTag(tag)">×</button>
+          </span>
+          <input [(ngModel)]="competenceInput"
+                 (keydown)="onCompetenceKeydown($event)"
+                 placeholder="Tapez et appuyez sur Entrée...">
+        </div>
+        <p class="hint">Ces compétences seront utilisées pour détecter les lacunes.</p>
+      </div>
+
+      <!-- Collaborateur Multi-Select -->
+      <div class="form-section">
+        <label class="section-label">
+          👥 Sélectionner les membres 
+          <span class="selected-count" *ngIf="selectedIds.size > 0">
+            ({{ selectedIds.size }} sélectionné(s))
+          </span>
+        </label>
+        <div class="search-box">
+          <input [(ngModel)]="searchText" (input)="onSearch()"
+                 placeholder="Rechercher un collaborateur..."
+                 class="search-input">
+        </div>
+
+        <div *ngIf="isLoading" class="loading-collabs">
+          Chargement...
+        </div>
+
+        <div class="collabs-list" *ngIf="!isLoading">
+          <div class="collab-select-row"
+               *ngFor="let c of filteredCollabs"
+               [class.selected]="isSelected(c.id)"
+               (click)="toggleSelect(c.id)">
+            <div class="checkbox-circle" [class.checked]="isSelected(c.id)">
+              <span *ngIf="isSelected(c.id)">✓</span>
+            </div>
+            <div class="mini-avatar-sm"
+                 [style.background]="getAvatarColor(c.nom)">
+              {{ c.prenom[0] }}{{ c.nom[0] }}
+            </div>
+            <div class="collab-select-info">
+              <div class="select-name">{{ c.prenom }} {{ c.nom }}</div>
+              <div class="select-poste">{{ c.poste }}</div>
+            </div>
+            <div class="select-badges">
+              <span class="mini-badge" 
+                    *ngFor="let comp of c.topCompetences">
+                {{ comp }}
+              </span>
+            </div>
+          </div>
+
+          <div *ngIf="filteredCollabs.length === 0" class="no-results">
+            Aucun collaborateur trouvé.
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button class="btn-constituer"
+              (click)="constituerEquipe()"
+              [disabled]="!projetNom.trim() || 
+                          selectedIds.size === 0 || isSubmitting">
+        <span *ngIf="!isSubmitting">🏗️ Constituer l'équipe</span>
+        <span *ngIf="isSubmitting">⏳ Constitution en cours...</span>
+      </button>
+
+    </div>
+
+    <!-- RIGHT PANEL — Result -->
+    <div class="result-panel">
+
+      <!-- Empty state -->
+      <div *ngIf="!result" class="result-empty">
+        <div class="empty-illustration">🏗️</div>
+        <h3>Votre équipe apparaîtra ici</h3>
+        <p>Remplissez le formulaire et cliquez sur 
+           "Constituer l'équipe"</p>
+      </div>
+
+      <!-- Result -->
+      <div *ngIf="result" class="result-content">
+
+        <div class="result-header">
+          <h2>{{ result.projetNom }}</h2>
+          <button class="btn-reset" (click)="reset()">
+            🔄 Nouvelle équipe
+          </button>
+        </div>
+
+        <!-- Members -->
+        <div class="result-section">
+          <h3 class="result-section-title">
+            👥 Membres ({{ result.membres.length }})
+          </h3>
+          <div class="membres-grid">
+            <div class="membre-card" 
+                 *ngFor="let m of result.membres">
+              <div class="membre-avatar"
+                   [style.background]="getAvatarColor(m.nom)">
+                {{ m.prenom[0] }}{{ m.nom[0] }}
+              </div>
+              <div class="membre-info">
+                <div class="membre-name">
+                  {{ m.prenom }} {{ m.nom }}
+                </div>
+                <div class="membre-poste">{{ m.poste }}</div>
+                <div class="membre-competences">
+                  <span *ngFor="let c of m.topCompetences" 
+                        class="mini-badge">{{ c }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Covered competences -->
+        <div class="result-section">
+          <h3 class="result-section-title">
+            ✅ Compétences couvertes 
+            ({{ result.competencesCouvertes.length }})
+          </h3>
+          <div class="tags-wrap">
+            <span class="tag-covered" 
+                  *ngFor="let c of result.competencesCouvertes">
+              {{ c }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Missing competences -->
+        <div class="result-section" *ngIf="result.hasGap">
+          <div class="gap-warning">
+            ⚠️ Compétences manquantes 
+            ({{ result.competencesManquantes.length }})
+          </div>
+          <div class="tags-wrap">
+            <span class="tag-missing"
+                  *ngFor="let c of result.competencesManquantes">
+              {{ c }}
+            </span>
+          </div>
+          <p class="gap-message">
+            Ces compétences requises ne sont pas couvertes 
+            par l'équipe constituée.
+          </p>
+        </div>
+
+        <!-- All good -->
+        <div class="result-section" 
+             *ngIf="!result.hasGap && 
+                    result.competencesManquantes.length === 0 &&
+                    competencesRequises.length > 0">
+          <div class="gap-ok">
+            ✅ Toutes les compétences requises sont couvertes !
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

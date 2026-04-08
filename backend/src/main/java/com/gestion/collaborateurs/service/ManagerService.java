@@ -3,9 +3,20 @@ package com.gestion.collaborateurs.service;
 import com.gestion.collaborateurs.dto.*;
 import com.gestion.collaborateurs.entity.Collaborateur;
 import com.gestion.collaborateurs.entity.Niveau;
+import com.gestion.collaborateurs.exception.ResourceNotFoundException;
 import com.gestion.collaborateurs.repository.CollaborateurRepository;
 import com.gestion.collaborateurs.repository.CompetenceRepository;
+import com.lowagie.text.Document;
+import com.lowagie.text.Font;
+import com.lowagie.text.FontFactory;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,9 +24,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.awt.Color;
+import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.counting;
@@ -28,6 +40,298 @@ public class ManagerService {
 
     private final CollaborateurRepository collaborateurRepository;
     private final CompetenceRepository competenceRepository;
+
+    public MatriceDTO getMatrice() {
+        List<Collaborateur> collabs =
+                collaborateurRepository.findAllWithCompetencesAndProjets();
+
+        // Build sorted list of all unique competence names
+        List<String> allCompetences = collabs.stream()
+                .flatMap(c -> c.getCompetences().stream())
+                .map(cc -> cc.getCompetence().getNom())
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+
+        // Build one CollabRowDTO per collaborateur
+        List<CollabRowDTO> rows = collabs.stream().map(c -> {
+            Map<String, String> niveaux = new LinkedHashMap<>();
+            allCompetences.forEach(compName -> niveaux.put(compName, null));
+            c.getCompetences().forEach(cc ->
+                    niveaux.put(cc.getCompetence().getNom(), cc.getNiveau().name()));
+            return CollabRowDTO.builder()
+                    .collaborateurId(c.getId())
+                    .nom(c.getNom())
+                    .prenom(c.getPrenom())
+                    .poste(c.getPoste())
+                    .photoUrl(c.getPhotoUrl())
+                    .niveaux(niveaux)
+                    .build();
+        }).collect(Collectors.toList());
+
+        return MatriceDTO.builder()
+                .collaborateurs(rows)
+                .competences(allCompetences)
+                .build();
+    }
+
+    public byte[] exportMatricePdf(MatriceDTO matrice) {
+        Document document = new Document(PageSize.A4.rotate(), 20, 20, 30, 20);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            PdfWriter.getInstance(document, baos);
+            document.open();
+
+            Color NAVY = new Color(27, 42, 74);
+            Color GREY = new Color(100, 116, 139);
+            Color DEBUTANT_COLOR = new Color(203, 213, 225);
+            Color INTER_COLOR = new Color(191, 219, 254);
+            Color AVANCE_COLOR = new Color(254, 215, 170);
+            Color EXPERT_COLOR = new Color(167, 243, 208);
+            Color EMPTY_COLOR = new Color(248, 250, 252);
+
+            Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, NAVY);
+            Font subtitleFont = FontFactory.getFont(FontFactory.HELVETICA, 10, GREY);
+            Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, Color.WHITE);
+            Font cellFont = FontFactory.getFont(FontFactory.HELVETICA, 9, NAVY);
+            Font posteFont = FontFactory.getFont(FontFactory.HELVETICA, 7, GREY);
+            Font badgeFont = FontFactory.getFont(FontFactory.HELVETICA, 8, NAVY);
+            Font badgeFontBold = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 8, NAVY);
+
+            com.lowagie.text.Paragraph title = new com.lowagie.text.Paragraph("Matrice des Compétences", titleFont);
+            title.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+            document.add(title);
+
+            com.lowagie.text.Paragraph subtitle = new com.lowagie.text.Paragraph(
+                    matrice.getCollaborateurs().size() + " collaborateurs · " + matrice.getCompetences().size() + " compétences",
+                    subtitleFont);
+            subtitle.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+            subtitle.setSpacingAfter(15f);
+            document.add(subtitle);
+
+            PdfPTable table = new PdfPTable(1 + matrice.getCompetences().size());
+            table.setWidthPercentage(100);
+            float[] widths = new float[1 + matrice.getCompetences().size()];
+            widths[0] = 120f;
+            for (int i = 1; i < widths.length; i++) widths[i] = 55f;
+            table.setWidths(widths);
+
+            // Header
+            PdfPCell h1 = new PdfPCell(new com.lowagie.text.Phrase("Collaborateur / Poste", headerFont));
+            h1.setBackgroundColor(NAVY);
+            h1.setPadding(5);
+            table.addCell(h1);
+
+            for (String comp : matrice.getCompetences()) {
+                String displayName = comp;
+                if (comp.length() > 10) displayName = comp.substring(0, 8) + ".";
+                PdfPCell hc = new PdfPCell(new com.lowagie.text.Phrase(displayName, headerFont));
+                hc.setBackgroundColor(NAVY);
+                hc.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+                hc.setVerticalAlignment(com.lowagie.text.Element.ALIGN_MIDDLE);
+                table.addCell(hc);
+            }
+
+            // Rows
+            for (CollabRowDTO row : matrice.getCollaborateurs()) {
+                PdfPCell nameCell = new PdfPCell();
+                nameCell.addElement(new com.lowagie.text.Phrase(row.getPrenom() + " " + row.getNom(), cellFont));
+                nameCell.addElement(new com.lowagie.text.Phrase(row.getPoste(), posteFont));
+                nameCell.setPadding(6f);
+                table.addCell(nameCell);
+
+                for (String compName : matrice.getCompetences()) {
+                    String niveau = row.getNiveaux().get(compName);
+                    PdfPCell cell = new PdfPCell();
+                    cell.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+                    cell.setVerticalAlignment(com.lowagie.text.Element.ALIGN_MIDDLE);
+
+                    if (niveau == null) {
+                        cell.setBackgroundColor(EMPTY_COLOR);
+                    } else {
+                        String label = "";
+                        Color color = EMPTY_COLOR;
+                        Font f = badgeFont;
+                        if (niveau.equals("DEBUTANT")) { label = "DEB"; color = DEBUTANT_COLOR; }
+                        else if (niveau.equals("INTERMEDIAIRE")) { label = "INT"; color = INTER_COLOR; }
+                        else if (niveau.equals("AVANCE")) { label = "AVA"; color = AVANCE_COLOR; }
+                        else if (niveau.equals("EXPERT")) { label = "EXP"; color = EXPERT_COLOR; f = badgeFontBold; }
+
+                        cell.setBackgroundColor(color);
+                        cell.setPhrase(new com.lowagie.text.Phrase(label, f));
+                    }
+                    table.addCell(cell);
+                }
+            }
+            document.add(table);
+
+            // Legend
+            PdfPTable legend = new PdfPTable(4);
+            legend.setSpacingBefore(15f);
+            legend.setWidthPercentage(60);
+            legend.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_LEFT);
+
+            addLegendCell(legend, "DÉBUTANT", DEBUTANT_COLOR);
+            addLegendCell(legend, "INTERMÉDIAIRE", INTER_COLOR);
+            addLegendCell(legend, "AVANCÉ", AVANCE_COLOR);
+            addLegendCell(legend, "EXPERT", EXPERT_COLOR);
+            document.add(legend);
+
+            com.lowagie.text.Paragraph footer = new com.lowagie.text.Paragraph(
+                    "Généré le " + LocalDate.now() + " — Plateforme Gestion Collaborateurs", subtitleFont);
+            footer.setAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+            footer.setSpacingBefore(10f);
+            document.add(footer);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            document.close();
+        }
+        return baos.toByteArray();
+    }
+
+    private void addLegendCell(PdfPTable table, String text, Color color) {
+        PdfPCell cell = new PdfPCell(new com.lowagie.text.Phrase(text, FontFactory.getFont(FontFactory.HELVETICA, 8)));
+        cell.setBackgroundColor(color);
+        cell.setHorizontalAlignment(com.lowagie.text.Element.ALIGN_CENTER);
+        cell.setPadding(4);
+        table.addCell(cell);
+    }
+
+    public byte[] exportMatriceExcel(MatriceDTO matrice) {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            XSSFSheet sheet = workbook.createSheet("Matrice Compétences");
+
+            // Styles
+            XSSFCellStyle headerStyle = createColorStyle(workbook, (byte) 27, (byte) 42, (byte) 74);
+            XSSFFont headerFont = workbook.createFont();
+            headerFont.setColor(IndexedColors.WHITE.getIndex());
+            headerFont.setBold(true);
+            headerStyle.setFont(headerFont);
+
+            XSSFCellStyle collabStyle = workbook.createCellStyle();
+            collabStyle.setWrapText(true);
+            collabStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+            collabStyle.setBorderBottom(BorderStyle.THIN);
+            collabStyle.setBorderRight(BorderStyle.THIN);
+
+            XSSFCellStyle debutantStyle = createColorStyle(workbook, (byte) 203, (byte) 213, (byte) 225);
+            XSSFCellStyle interStyle = createColorStyle(workbook, (byte) 191, (byte) 219, (byte) 254);
+            XSSFCellStyle avanceStyle = createColorStyle(workbook, (byte) 254, (byte) 215, (byte) 170);
+            XSSFCellStyle expertStyle = createColorStyle(workbook, (byte) 167, (byte) 243, (byte) 208);
+            XSSFFont expertFont = workbook.createFont();
+            expertFont.setBold(true);
+            expertStyle.setFont(expertFont);
+
+            XSSFCellStyle emptyStyle = createColorStyle(workbook, (byte) 248, (byte) 250, (byte) 252);
+
+            // Header
+            XSSFRow headerRow = sheet.createRow(0);
+            headerRow.setHeightInPoints(60);
+            XSSFCell hCell0 = headerRow.createCell(0);
+            hCell0.setCellValue("Collaborateur");
+            hCell0.setCellStyle(headerStyle);
+
+            for (int i = 0; i < matrice.getCompetences().size(); i++) {
+                XSSFCell cell = headerRow.createCell(i + 1);
+                cell.setCellValue(matrice.getCompetences().get(i));
+                cell.setCellStyle(headerStyle);
+            }
+
+            sheet.setColumnWidth(0, 6000);
+            for (int i = 1; i <= matrice.getCompetences().size(); i++) {
+                sheet.setColumnWidth(i, 3000);
+            }
+
+            // Data
+            int rowIdx = 1;
+            for (CollabRowDTO row : matrice.getCollaborateurs()) {
+                XSSFRow xRow = sheet.createRow(rowIdx++);
+                XSSFCell c0 = xRow.createCell(0);
+                c0.setCellValue(row.getPrenom() + " " + row.getNom() + "\n" + row.getPoste());
+                c0.setCellStyle(collabStyle);
+
+                for (int i = 0; i < matrice.getCompetences().size(); i++) {
+                    String compName = matrice.getCompetences().get(i);
+                    String niveau = row.getNiveaux().get(compName);
+                    XSSFCell cell = xRow.createCell(i + 1);
+
+                    if (niveau == null) {
+                        cell.setCellStyle(emptyStyle);
+                    } else {
+                        switch (niveau) {
+                            case "DEBUTANT": cell.setCellStyle(debutantStyle); cell.setCellValue("DEB"); break;
+                            case "INTERMEDIAIRE": cell.setCellStyle(interStyle); cell.setCellValue("INT"); break;
+                            case "AVANCE": cell.setCellStyle(avanceStyle); cell.setCellValue("AVA"); break;
+                            case "EXPERT": cell.setCellStyle(expertStyle); cell.setCellValue("EXP"); break;
+                            default: cell.setCellStyle(emptyStyle);
+                        }
+                    }
+                }
+            }
+
+            sheet.createFreezePane(1, 1);
+            sheet.setAutoFilter(new CellRangeAddress(0, 0, 0, matrice.getCompetences().size()));
+
+            workbook.write(baos);
+            return baos.toByteArray();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new byte[0];
+        } finally {
+            try { workbook.close(); } catch (Exception ignored) {}
+        }
+    }
+
+    private XSSFCellStyle createColorStyle(XSSFWorkbook wb, byte r, byte g, byte b) {
+        XSSFCellStyle style = wb.createCellStyle();
+        XSSFColor color = new XSSFColor(new byte[]{r, g, b}, null);
+        style.setFillForegroundColor(color);
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        return style;
+    }
+
+    public EquipeDTO constituerEquipe(EquipeRequest request) {
+        List<Collaborateur> membres =
+                collaborateurRepository.findAllByIdWithCompetences(request.getCollaborateurIds());
+
+        if (membres.isEmpty()) throw new ResourceNotFoundException("Aucun collaborateur trouvé");
+
+        // Collect all competences covered by the team
+        Set<String> covered = membres.stream()
+                .flatMap(c -> c.getCompetences().stream())
+                .map(cc -> cc.getCompetence().getNom().toLowerCase())
+                .collect(Collectors.toSet());
+
+        // Find missing competences
+        List<String> manquantes = new ArrayList<>();
+        if (request.getCompetencesRequises() != null) {
+            manquantes = request.getCompetencesRequises().stream()
+                    .filter(req -> !covered.contains(req.toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+
+        List<CollaborateurSummaryDTO> membresDTO = membres.stream()
+                .map(CollaborateurSummaryDTO::fromEntity)
+                .collect(Collectors.toList());
+
+        List<String> couvertesDisplay = new ArrayList<>(covered);
+        Collections.sort(couvertesDisplay);
+
+        return EquipeDTO.builder()
+                .projetNom(request.getProjetNom())
+                .membres(membresDTO)
+                .competencesCouvertes(couvertesDisplay)
+                .competencesManquantes(manquantes)
+                .hasGap(!manquantes.isEmpty())
+                .build();
+    }
 
     public DashboardDTO getDashboard() {
         long totalCollabs = collaborateurRepository.count();

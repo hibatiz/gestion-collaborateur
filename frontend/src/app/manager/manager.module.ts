@@ -1,6 +1,6 @@
-import { NgModule, Component } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { ManagerRoutingModule } from './manager-routing.module';
 import { SharedModule } from '../shared/shared.module';
 
@@ -8,15 +8,8 @@ import { ManagerLayoutComponent } from './manager-layout/manager-layout.componen
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ListeCollabsComponent } from './liste-collabs/liste-collabs.component';
 import { CollabDetailComponent } from './collab-detail/collab-detail.component';
-
-@Component({
-  template: `
-    <div style="padding:40px; text-align:center; color:#64748B">
-      <h2>🚧 En construction</h2>
-      <p>Cette fonctionnalité sera disponible dans le prochain sprint.</p>
-    </div>`
-})
-export class PlaceholderManagerComponent {}
+import { MatriceComponent } from './matrice/matrice.component';
+import { EquipeComponent } from './equipe/equipe.component';
 
 @NgModule({
   declarations: [
@@ -24,11 +17,13 @@ export class PlaceholderManagerComponent {}
     DashboardComponent,
     ListeCollabsComponent,
     CollabDetailComponent,
-    PlaceholderManagerComponent
+    MatriceComponent,
+    EquipeComponent
   ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    FormsModule,
     ManagerRoutingModule,
     SharedModule
   ]

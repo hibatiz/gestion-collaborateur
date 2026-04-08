@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
-import { TokenService } from '../../core/auth/token.service';
+import { TokenService } from '../../core/token.service';
 
 @Component({
   selector: 'app-manager-layout',

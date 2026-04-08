@@ -4,7 +4,8 @@ import { ManagerLayoutComponent } from './manager-layout/manager-layout.componen
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { ListeCollabsComponent } from './liste-collabs/liste-collabs.component';
 import { CollabDetailComponent } from './collab-detail/collab-detail.component';
-import { PlaceholderManagerComponent } from './manager.module';
+import { MatriceComponent } from './matrice/matrice.component';
+import { EquipeComponent } from './equipe/equipe.component';
 
 const routes: Routes = [
   {
@@ -15,8 +16,8 @@ const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'collaborateurs', component: ListeCollabsComponent },
       { path: 'collaborateurs/:id', component: CollabDetailComponent },
-      { path: 'matrice', component: PlaceholderManagerComponent },
-      { path: 'equipe', component: PlaceholderManagerComponent }
+      { path: 'matrice', component: MatriceComponent },
+      { path: 'equipe', component: EquipeComponent }
     ]
   }
 ];

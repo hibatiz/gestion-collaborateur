@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ManagerService } from '../manager.service';
-import { Collaborateur } from '../../shared/models/collaborateur.model';
+import { CollaborateurDetail } from '../../shared/models/manager.model';
 
 @Component({
   selector: 'app-collab-detail',
@@ -9,7 +9,7 @@ import { Collaborateur } from '../../shared/models/collaborateur.model';
   styleUrls: ['./collab-detail.component.scss']
 })
 export class CollabDetailComponent implements OnInit {
-  collab: Collaborateur | null = null;
+  collab: CollaborateurDetail | null = null;
   isLoading = true;
 
   constructor(

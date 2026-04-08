@@ -1,10 +1,6 @@
 package com.gestion.collaborateurs.service;
 
-import com.gestion.collaborateurs.dto.CollaborateurDTO;
-import com.gestion.collaborateurs.dto.CompetenceDTO;
-import com.gestion.collaborateurs.dto.CompetenceRequest;
-import com.gestion.collaborateurs.dto.NiveauRequest;
-import com.gestion.collaborateurs.dto.UpdateProfileRequest;
+import com.gestion.collaborateurs.dto.*;
 import com.gestion.collaborateurs.entity.Categorie;
 import com.gestion.collaborateurs.entity.Collaborateur;
 import com.gestion.collaborateurs.entity.CollaborateurCompetence;
@@ -33,6 +29,52 @@ public class CollaborateurService {
     private final CompetenceRepository competenceRepository;
     private final CollaborateurCompetenceRepository collaborateurCompetenceRepository;
     private final FileStorageService fileStorageService;
+
+    public CollaborateurDetailDTO getCollaborateurDetail(Long id) {
+        Collaborateur coll = collaborateurRepository.findByIdWithDetails(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Collaborateur non trouvé: " + id));
+
+        return CollaborateurDetailDTO.builder()
+                .id(coll.getId())
+                .nom(coll.getNom())
+                .prenom(coll.getPrenom())
+                .poste(coll.getPoste())
+                .departement(coll.getDepartement())
+                .anneesExperience(coll.getAnneesExperience())
+                .email(coll.getEmail())
+                .telephone(coll.getTelephone())
+                .photoUrl(coll.getPhotoUrl())
+                .user(CollaborateurDetailDTO.UserSummaryDTO.builder()
+                        .username(coll.getUser().getUsername())
+                        .role(coll.getUser().getRole().name())
+                        .build())
+                .competences(coll.getCompetences().stream().map(cc -> 
+                    CollaborateurDetailDTO.CollabCompetenceDTO.builder()
+                        .id(cc.getId())
+                        .niveau(cc.getNiveau().name())
+                        .dateAcquisition(cc.getDateAcquisition().toString())
+                        .competence(CollaborateurDetailDTO.CompetenceSummaryDTO.builder()
+                                .id(cc.getCompetence().getId())
+                                .nom(cc.getCompetence().getNom())
+                                .categorie(cc.getCompetence().getCategorie().name())
+                                .build())
+                        .build()
+                ).collect(Collectors.toList()))
+                .projets(coll.getProjets().stream().map(p -> 
+                    ProjetDTO.builder()
+                        .id(p.getId())
+                        .nom(p.getNom())
+                        .description(p.getDescription())
+                        .dateDebut(p.getDateDebut())
+                        .dateFin(p.getDateFin())
+                        .role(p.getRole())
+                        .technologies(p.getTechnologies())
+                        .dureeEnMois(p.calculateDureeEnMois())
+                        .enCours(p.getDateFin() == null)
+                        .build()
+                ).collect(Collectors.toList()))
+                .build();
+    }
 
     public CollaborateurDTO getCollaborateurByUserId(Long userId) {
         Collaborateur coll = collaborateurRepository.findByUserId(userId)

@@ -1,0 +1,19 @@
+
+> frontend@0.0.0 build
+> ng build --configuration=production
+
+Initial chunk files   | Names          |  Raw size | Estimated transfer size
+chunk-LVI3EKDH.js     | -              | 311.15 kB |                79.32 kB
+main-EWKYQ7V7.js      | main           |  70.72 kB |                14.58 kB
+polyfills-FFHMD2TL.js | polyfills      |  33.71 kB |                11.02 kB
+styles-WTWA5WRB.css   | styles         | 591 bytes |               591 bytes
+
+                      | Initial total  | 416.16 kB |               105.50 kB
+
+Lazy chunk files      | Names          |  Raw size | Estimated transfer size
+chunk-Y7XEN3MV.js     | manager-module | 266.81 kB |                71.73 kB
+
+Output location: C:\Users\tizao_6hfcftm\Desktop\gestion-collaborateur\frontend\dist\frontend
+
+Application bundle generation complete. [7.755 seconds]
+

@@ -1,0 +1,124 @@
+<div class="matrice-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1>Matrice des Compétences</h1>
+      <p *ngIf="matrice">
+        {{ matrice.collaborateurs.length }} collaborateurs · 
+        {{ matrice.competences.length }} compétences
+      </p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-export btn-pdf" 
+              (click)="exportPdf()"
+              [disabled]="exportingFormat !== null">
+        <span *ngIf="exportingFormat !== 'pdf'">📄 Exporter PDF</span>
+        <span *ngIf="exportingFormat === 'pdf'">⏳ Génération...</span>
+      </button>
+      <button class="btn-export btn-excel"
+              (click)="exportExcel()"
+              [disabled]="exportingFormat !== null">
+        <span *ngIf="exportingFormat !== 'xlsx'">📊 Exporter Excel</span>
+        <span *ngIf="exportingFormat === 'xlsx'">⏳ Génération...</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <div class="filter-bar" *ngIf="!isLoading && matrice">
+    <span class="filter-icon">🔍</span>
+    <input [(ngModel)]="filterText" 
+           placeholder="Filtrer par compétence..."
+           class="filter-input">
+    <button *ngIf="filterText" (click)="filterText=''" 
+            class="btn-clear">✕</button>
+    <span class="filter-count" *ngIf="filterText">
+      {{ filteredCompetences.length }} / 
+      {{ matrice.competences.length }} compétences
+    </span>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner-large"></div>
+    <p>Chargement de la matrice...</p>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!isLoading && (!matrice || matrice.collaborateurs.length === 0)"
+       class="empty-state">
+    <p>Aucune donnée disponible.</p>
+  </div>
+
+  <!-- Matrix Table -->
+  <div *ngIf="!isLoading && matrice && matrice.collaborateurs.length > 0"
+       class="matrix-container">
+    <table class="matrix-table">
+      <thead>
+        <tr>
+          <!-- Sticky first header cell -->
+          <th class="header-collab sticky-col sticky-header">
+            Collaborateur
+          </th>
+          <!-- Competence headers -->
+          <th class="header-comp sticky-header"
+              *ngFor="let comp of filteredCompetences"
+              [title]="comp">
+            <div class="comp-header-text">{{ comp }}</div>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of filteredRows; let i = index"
+            [class.row-even]="i % 2 === 0">
+          <!-- Sticky collaborateur cell -->
+          <td class="collab-cell sticky-col">
+            <div class="collab-info">
+              <div class="mini-avatar" 
+                   [style.background]="getAvatarColor(row.nom)">
+                {{ row.prenom[0] }}{{ row.nom[0] }}
+              </div>
+              <div class="collab-text">
+                <div class="collab-name">
+                  {{ row.prenom }} {{ row.nom }}
+                </div>
+                <div class="collab-poste">{{ row.poste }}</div>
+              </div>
+            </div>
+          </td>
+          <!-- Niveau cells -->
+          <td *ngFor="let comp of filteredCompetences"
+              [class]="getNiveauClass(row.niveaux[comp])"
+              [title]="row.niveaux[comp] || 'Non renseigné'">
+            <span class="niveau-badge" 
+                  *ngIf="row.niveaux[comp]">
+              {{ getNiveauLabel(row.niveaux[comp]) }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend" *ngIf="!isLoading && matrice">
+    <span class="legend-title">Légende :</span>
+    <span class="legend-item">
+      <span class="legend-dot dot-debutant"></span> Débutant
+    </span>
+    <span class="legend-item">
+      <span class="legend-dot dot-inter"></span> Intermédiaire
+    </span>
+    <span class="legend-item">
+      <span class="legend-dot dot-avance"></span> Avancé
+    </span>
+    <span class="legend-item">
+      <span class="legend-dot dot-expert"></span> Expert
+    </span>
+    <span class="legend-item">
+      <span class="legend-dot dot-empty"></span> Non renseigné
+    </span>
+  </div>
+
+</div>

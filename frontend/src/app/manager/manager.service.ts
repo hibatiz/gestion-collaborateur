@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../environments/environment';
-import { DashboardStats, PagedResponse, CollaborateurSummary, SearchParams } from '../shared/models/manager.model';
+import { map } from 'rxjs/operators';
+import { DashboardStats, PagedResponse, CollaborateurSummary, SearchParams, MatriceData, EquipeRequest, EquipeDTO } from '../shared/models/manager.model';
 
 @Injectable({ providedIn: 'root' })
 export class ManagerService {
-  private apiUrl = `${environment.apiUrl}/manager`;
+  private apiUrl = '/api/manager';
 
   constructor(private http: HttpClient) {}
 
@@ -40,5 +40,38 @@ export class ManagerService {
 
   getDepartements(): Observable<string[]> {
     return this.http.get<string[]>(`${this.apiUrl}/departements`);
+  }
+
+  getMatrice(): Observable<MatriceData> {
+    return this.http.get<MatriceData>(`${this.apiUrl}/matrice`);
+  }
+
+  exportMatrice(format: 'pdf' | 'xlsx'): Observable<Blob> {
+    return this.http.get(
+      `${this.apiUrl}/matrice/export?format=${format}`,
+      { responseType: 'blob' }
+    );
+  }
+
+  triggerDownload(blob: Blob, filename: string): void {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  constituerEquipe(request: EquipeRequest): Observable<EquipeDTO> {
+    return this.http.post<EquipeDTO>(
+      `${this.apiUrl}/equipe`, request);
+  }
+
+  getAllCollaborateursList(): Observable<CollaborateurSummary[]> {
+    return this.getCollaborateurs(0, 100).pipe(
+      map(response => response.content)
+    );
   }
 }

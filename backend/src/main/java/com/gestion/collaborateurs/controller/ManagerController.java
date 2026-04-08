@@ -1,13 +1,12 @@
 package com.gestion.collaborateurs.controller;
 
-import com.gestion.collaborateurs.dto.CollaborateurDTO;
-import com.gestion.collaborateurs.dto.CollaborateurSummaryDTO;
-import com.gestion.collaborateurs.dto.DashboardDTO;
-import com.gestion.collaborateurs.dto.PagedResponseDTO;
-import com.gestion.collaborateurs.dto.SearchParamsDTO;
+import com.gestion.collaborateurs.dto.*;
 import com.gestion.collaborateurs.service.CollaborateurService;
 import com.gestion.collaborateurs.service.ManagerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +26,42 @@ public class ManagerController {
     @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<DashboardDTO> getDashboard() {
         return ResponseEntity.ok(managerService.getDashboard());
+    }
+
+    @GetMapping("/matrice")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<MatriceDTO> getMatrice() {
+        return ResponseEntity.ok(managerService.getMatrice());
+    }
+
+    @GetMapping("/matrice/export")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<byte[]> exportMatrice(@RequestParam(defaultValue = "pdf") String format) {
+        MatriceDTO matrice = managerService.getMatrice();
+        byte[] bytes;
+        String filename;
+        MediaType contentType;
+
+        if ("xlsx".equalsIgnoreCase(format)) {
+            bytes = managerService.exportMatriceExcel(matrice);
+            filename = "matrice_competences.xlsx";
+            contentType = MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        } else {
+            bytes = managerService.exportMatricePdf(matrice);
+            filename = "matrice_competences.pdf";
+            contentType = MediaType.APPLICATION_PDF;
+        }
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                .contentType(contentType)
+                .body(bytes);
+    }
+
+    @PostMapping("/equipe")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<EquipeDTO> constituerEquipe(@RequestBody @Valid EquipeRequest request) {
+        return ResponseEntity.ok(managerService.constituerEquipe(request));
     }
 
     @GetMapping("/collaborateurs")
@@ -53,8 +88,8 @@ public class ManagerController {
 
     @GetMapping("/collaborateurs/{id}")
     @PreAuthorize("hasRole('MANAGER')")
-    public ResponseEntity<CollaborateurDTO> getCollaborateurDetail(@PathVariable Long id) {
-        return ResponseEntity.ok(collaborateurService.getCollaborateurById(id));
+    public ResponseEntity<CollaborateurDetailDTO> getCollaborateurDetail(@PathVariable Long id) {
+        return ResponseEntity.ok(collaborateurService.getCollaborateurDetail(id));
     }
 
     @GetMapping("/departements")
