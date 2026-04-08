@@ -1,16 +1,13 @@
 package com.gestion.collaborateurs.service;
 
 import com.gestion.collaborateurs.dto.*;
-import com.gestion.collaborateurs.entity.Categorie;
-import com.gestion.collaborateurs.entity.Collaborateur;
-import com.gestion.collaborateurs.entity.CollaborateurCompetence;
-import com.gestion.collaborateurs.entity.Competence;
-import com.gestion.collaborateurs.entity.Niveau;
+import com.gestion.collaborateurs.entity.*;
 import com.gestion.collaborateurs.exception.ConflictException;
 import com.gestion.collaborateurs.exception.ResourceNotFoundException;
 import com.gestion.collaborateurs.exception.UnauthorizedException;
 import com.gestion.collaborateurs.repository.CollaborateurCompetenceRepository;
 import com.gestion.collaborateurs.repository.CollaborateurRepository;
+import com.gestion.collaborateurs.repository.CompetenceLogRepository;
 import com.gestion.collaborateurs.repository.CompetenceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +26,7 @@ public class CollaborateurService {
     private final CollaborateurRepository collaborateurRepository;
     private final CompetenceRepository competenceRepository;
     private final CollaborateurCompetenceRepository collaborateurCompetenceRepository;
+    private final CompetenceLogRepository competenceLogRepository;
     private final FileStorageService fileStorageService;
 
     public CollaborateurDetailDTO getCollaborateurDetail(Long id) {
@@ -168,6 +167,17 @@ public class CollaborateurService {
                 .build();
 
         collaborateurCompetenceRepository.save(cc);
+
+        // Log the initial addition (ancienNiveau = null)
+        CompetenceLog log = CompetenceLog.builder()
+                .collaborateur(coll)
+                .competence(competence)
+                .ancienNiveau(null)
+                .nouveauNiveau(Niveau.valueOf(request.getNiveau()))
+                .dateChangement(LocalDateTime.now())
+                .build();
+        competenceLogRepository.save(log);
+
         return mapCompetenceToDTO(cc);
     }
 
@@ -183,8 +193,21 @@ public class CollaborateurService {
         CollaborateurCompetence cc = collaborateurCompetenceRepository.findByCollaborateurIdAndCompetenceId(collaborateurId, competenceId)
                 .orElseThrow(() -> new ResourceNotFoundException("Compétence non trouvée pour ce collaborateur"));
 
+        Niveau ancienNiveau = cc.getNiveau(); // save before update
+
         cc.setNiveau(Niveau.valueOf(request.getNiveau()));
         collaborateurCompetenceRepository.save(cc);
+
+        // Log the change
+        CompetenceLog log = CompetenceLog.builder()
+                .collaborateur(cc.getCollaborateur())
+                .competence(cc.getCompetence())
+                .ancienNiveau(ancienNiveau)
+                .nouveauNiveau(Niveau.valueOf(request.getNiveau()))
+                .dateChangement(LocalDateTime.now())
+                .build();
+        competenceLogRepository.save(log);
+
         return mapCompetenceToDTO(cc);
     }
 

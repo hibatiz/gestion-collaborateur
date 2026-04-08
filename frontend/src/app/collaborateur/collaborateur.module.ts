@@ -7,6 +7,7 @@ import { ProfilComponent } from './profil/profil.component';
 import { CompetencesComponent } from './competences/competences.component';
 import { ProjetsComponent } from './projets/projets.component';
 import { CvComponent } from './cv/cv.component';
+import { DashboardComponent } from './dashboard/dashboard.component';
 import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
@@ -15,7 +16,8 @@ import { HttpClientModule } from '@angular/common/http';
     ProfilComponent,
     CompetencesComponent,
     ProjetsComponent,
-    CvComponent
+    CvComponent,
+    DashboardComponent
   ],
   imports: [
     CommonModule,

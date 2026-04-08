@@ -4,8 +4,10 @@ import com.gestion.collaborateurs.dto.*;
 import com.gestion.collaborateurs.entity.Collaborateur;
 import com.gestion.collaborateurs.entity.Niveau;
 import com.gestion.collaborateurs.exception.ResourceNotFoundException;
+import com.gestion.collaborateurs.repository.CollaborateurCompetenceRepository;
 import com.gestion.collaborateurs.repository.CollaborateurRepository;
 import com.gestion.collaborateurs.repository.CompetenceRepository;
+import com.gestion.collaborateurs.entity.CollaborateurCompetence;
 import com.lowagie.text.Document;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
@@ -40,6 +42,72 @@ public class ManagerService {
 
     private final CollaborateurRepository collaborateurRepository;
     private final CompetenceRepository competenceRepository;
+    private final CollaborateurCompetenceRepository collaborateurCompetenceRepository;
+
+    public EnhancedDashboardDTO getEnhancedDashboard() {
+        DashboardDTO base = getDashboard();
+
+        // 1. evolutionMoyenneNiveaux
+        List<CollaborateurCompetence> allCC = collaborateurCompetenceRepository.findAll();
+        Map<String, List<CollaborateurCompetence>> groupedByComp = allCC.stream()
+                .collect(groupingBy(cc -> cc.getCompetence().getNom()));
+
+        List<Map<String, Object>> evolutionMoyenneNiveaux = groupedByComp.entrySet().stream()
+                .map(entry -> {
+                    double avg = entry.getValue().stream()
+                            .mapToDouble(cc -> getNiveauScore(cc.getNiveau()))
+                            .average().orElse(0.0);
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("competence", entry.getKey());
+                    map.put("moyenne", avg);
+                    map.put("count", (long) entry.getValue().size());
+                    return map;
+                })
+                .sorted((m1, m2) -> Double.compare((double) m2.get("moyenne"), (double) m1.get("moyenne")))
+                .limit(10)
+                .collect(Collectors.toList());
+
+        // 2. repartitionParDepartementEtCategorie
+        List<Collaborateur> allCollabs = collaborateurRepository.findAll();
+        Map<String, Map<String, Long>> repartitionParDeptEtCat = allCollabs.stream()
+                .filter(c -> c.getDepartement() != null)
+                .collect(groupingBy(Collaborateur::getDepartement,
+                        groupingBy(c -> "TOTAL", counting()))); // placeholder for nested grouping
+
+        // Actually we need to loop through collabs and their competences
+        Map<String, Map<String, Long>> result = new HashMap<>();
+        for (Collaborateur c : allCollabs) {
+            String dept = c.getDepartement();
+            if (dept == null) continue;
+            result.putIfAbsent(dept, new HashMap<>());
+            for (CollaborateurCompetence cc : c.getCompetences()) {
+                String cat = cc.getCompetence().getCategorie().name();
+                result.get(dept).put(cat, result.get(dept).getOrDefault(cat, 0L) + 1);
+            }
+        }
+
+        return EnhancedDashboardDTO.builder()
+                .totalCollaborateurs(base.getTotalCollaborateurs())
+                .totalCompetences(base.getTotalCompetences())
+                .repartitionParDepartement(base.getRepartitionParDepartement())
+                .top5Competences(base.getTop5Competences())
+                .repartitionNiveaux(base.getRepartitionNiveaux())
+                .collaborateursRecents(base.getCollaborateursRecents())
+                .evolutionMoyenneNiveaux(evolutionMoyenneNiveaux)
+                .repartitionParDepartementEtCategorie(result)
+                .build();
+    }
+
+    private double getNiveauScore(Niveau n) {
+        if (n == null) return 0.0;
+        switch (n) {
+            case DEBUTANT: return 1.0;
+            case INTERMEDIAIRE: return 2.0;
+            case AVANCE: return 3.0;
+            case EXPERT: return 4.0;
+            default: return 0.0;
+        }
+    }
 
     public MatriceDTO getMatrice() {
         List<Collaborateur> collabs =

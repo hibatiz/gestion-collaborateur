@@ -1,0 +1,151 @@
+<div class="collab-dashboard">
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner-large"></div>
+    <p>Chargement de votre tableau de bord...</p>
+  </div>
+
+  <div *ngIf="!isLoading && dashboardData">
+
+    <!-- Hero Section -->
+    <div class="hero-card">
+      <div class="hero-left">
+        <div class="hero-avatar">
+          <img *ngIf="dashboardData.photoUrl" 
+               [src]="'/api/uploads/' + dashboardData.photoUrl">
+          <div *ngIf="!dashboardData.photoUrl" class="initials-hero">
+            {{ (dashboardData.prenom?.[0] || '') + (dashboardData.nom?.[0] || '') }}
+          </div>
+        </div>
+        <div class="hero-info">
+          <h1>Bonjour, {{ dashboardData.prenom }} 👋</h1>
+          <p class="hero-poste">{{ dashboardData.poste }}</p>
+          <p class="hero-dept">🏢 {{ dashboardData.departement }}</p>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="stat-number">{{ dashboardData.totalCompetences }}</span>
+          <span class="stat-label">Compétences</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-number">{{ dashboardData.totalProjets }}</span>
+          <span class="stat-label">Projets</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-number">{{ dashboardData.anneesExperience }}</span>
+          <span class="stat-label">Ans d'exp.</span>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <a routerLink="/collab/profil" class="btn-action">✏️ Mon Profil</a>
+        <a routerLink="/collab/competences" class="btn-action">⭐ Compétences</a>
+        <a routerLink="/collab/cv" class="btn-action btn-primary-action">
+          📄 Générer CV
+        </a>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-row">
+
+      <!-- Radar Chart -->
+      <div class="chart-card">
+        <h3>Mes Compétences par Catégorie</h3>
+        <div *ngIf="dashboardData.totalCompetences === 0" class="chart-empty">
+          <p>Ajoutez des compétences pour voir ce graphique</p>
+          <a routerLink="/collab/competences">+ Ajouter des compétences</a>
+        </div>
+        <div class="chart-wrapper" 
+             *ngIf="dashboardData.totalCompetences > 0">
+          <canvas id="radarChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Niveau Distribution -->
+      <div class="chart-card">
+        <h3>Répartition de mes Niveaux</h3>
+        <div *ngIf="dashboardData.totalCompetences === 0" class="chart-empty">
+          <p>Aucune compétence renseignée</p>
+        </div>
+        <div class="niveau-bars" *ngIf="dashboardData.totalCompetences > 0">
+          <div class="niveau-bar-row" 
+               *ngFor="let item of dashboardData.niveauxDistribution | keyvalue">
+            <span class="niveau-label">{{ item.key }}</span>
+            <div class="bar-track">
+              <div class="bar-fill" 
+                   [style.width.%]="(item.value / dashboardData.totalCompetences) * 100"
+                   [style.background]="getNiveauColor(item.key.toString())">
+              </div>
+            </div>
+            <span class="bar-count">{{ item.value }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Evolution Chart -->
+    <div class="evolution-card">
+      <h3>Évolution de mes Compétences</h3>
+      <p class="evolution-subtitle">
+        Progression de vos niveaux au fil du temps
+      </p>
+      <div *ngIf="dashboardData.evolution.length === 0 || !hasEvolutionData()" 
+           class="chart-empty evolution-empty">
+        <p>📈 Votre évolution apparaîtra ici après avoir modifié le niveau d'une compétence</p>
+      </div>
+      <div class="chart-wrapper-large" 
+           *ngIf="dashboardData.evolution.length > 0 && hasEvolutionData()">
+        <canvas id="lineChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Category Cards -->
+    <div class="categories-section">
+      <h3>Compétences par Catégorie</h3>
+      <div class="category-cards">
+        <div class="category-card" 
+             *ngFor="let item of dashboardData.competencesParCategorie | keyvalue">
+          <span class="cat-icon">{{ getCategoryIcon(item.key.toString()) }}</span>
+          <span class="cat-count">{{ item.value }}</span>
+          <span class="cat-name">{{ item.key }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Projects -->
+    <div class="recent-projects" 
+         *ngIf="dashboardData.projetsRecents.length > 0">
+      <div class="section-header">
+        <h3>Projets Récents</h3>
+        <a routerLink="/collab/projets" class="see-all">
+          Voir tous →
+        </a>
+      </div>
+      <div class="projets-mini-grid">
+        <div class="projet-mini-card" 
+             *ngFor="let p of dashboardData.projetsRecents">
+          <div class="projet-mini-header">
+            <span class="projet-mini-nom">{{ p.nom }}</span>
+            <span class="mini-badge-green" *ngIf="p.enCours">
+              En cours
+            </span>
+            <span class="mini-badge-grey" *ngIf="!p.enCours">
+              Terminé
+            </span>
+          </div>
+          <p class="projet-mini-role">{{ p.role }}</p>
+          <div class="tech-chips-mini">
+            <span *ngFor="let t of p.technologies?.split(',')?.slice(0,3)"
+                  class="chip-mini">
+              {{ t.trim() }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

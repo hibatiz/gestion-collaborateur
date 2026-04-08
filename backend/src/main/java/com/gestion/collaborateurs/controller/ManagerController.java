@@ -28,6 +28,12 @@ public class ManagerController {
         return ResponseEntity.ok(managerService.getDashboard());
     }
 
+    @GetMapping("/dashboard/enhanced")
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<EnhancedDashboardDTO> getEnhancedDashboard() {
+        return ResponseEntity.ok(managerService.getEnhancedDashboard());
+    }
+
     @GetMapping("/matrice")
     @PreAuthorize("hasRole('MANAGER')")
     public ResponseEntity<MatriceDTO> getMatrice() {

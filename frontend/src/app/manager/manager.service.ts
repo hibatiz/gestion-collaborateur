@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { DashboardStats, PagedResponse, CollaborateurSummary, SearchParams, MatriceData, EquipeRequest, EquipeDTO } from '../shared/models/manager.model';
+import { DashboardStats, EnhancedDashboard, PagedResponse, CollaborateurSummary, SearchParams, MatriceData, EquipeRequest, EquipeDTO } from '../shared/models/manager.model';
 
 @Injectable({ providedIn: 'root' })
 export class ManagerService {
@@ -32,6 +32,10 @@ export class ManagerService {
     if (searchParams.departement) params = params.set('departement', searchParams.departement);
 
     return this.http.get<PagedResponse<CollaborateurSummary>>(`${this.apiUrl}/collaborateurs/search`, { params });
+  }
+
+  getEnhancedDashboard(): Observable<EnhancedDashboard> {
+    return this.http.get<EnhancedDashboard>(`${this.apiUrl}/dashboard/enhanced`);
   }
 
   getCollaborateurDetail(id: number): Observable<any> {

@@ -56,23 +56,70 @@
       </div>
     </div>
 
-    <!-- Recent Collaborateurs -->
-    <div class="recent-section">
-      <h3>Derniers Collaborateurs</h3>
-      <div class="recent-grid">
-        <div class="recent-card" 
-             *ngFor="let c of stats.collaborateursRecents"
-             [routerLink]="['/manager/collaborateurs', c.id]">
-          <div class="avatar" [style.background]="getAvatarColor(c.nom)">
-            {{ c.prenom[0] }}{{ c.nom[0] }}
-          </div>
-          <div class="recent-info">
-            <div class="recent-name">{{ c.prenom }} {{ c.nom }}</div>
-            <div class="recent-poste">{{ c.poste }}</div>
+    <!-- Second Charts Row -->
+    <div class="charts-row stats-grid">
+      
+      <!-- Average Skill Level (Horizontal Bar) -->
+      <div class="chart-card">
+        <div class="card-header">
+          <h3>Top 10 Niveaux Moyens</h3>
+          <span class="info-badge">Score 1-4</span>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="avgLevelChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Cross Distribution Table -->
+      <div class="chart-card">
+        <h3>Distribution Département / Catégorie</h3>
+        <div class="table-scroll">
+          <table class="distribution-table">
+            <thead>
+              <tr>
+                <th>Département</th>
+                <th>Tech</th>
+                <th>Outil</th>
+                <th>Méthodo</th>
+                <th>Langue</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of stats.repartitionParDepartementEtCategorie | keyvalue">
+                <td class="dept-name">{{ item.key }}</td>
+                <td>{{ item.value['TECHNIQUE'] || 0 }}</td>
+                <td>{{ item.value['OUTIL'] || 0 }}</td>
+                <td>{{ item.value['METHODOLOGIE'] || 0 }}</td>
+                <td>{{ item.value['LANGUE'] || 0 }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Recent Actions & Collabs -->
+    <div class="bottom-row">
+      <!-- Recent Collaborators -->
+      <div class="list-card recent-collabs">
+        <div class="card-header">
+          <h3>Collaborateurs Récents</h3>
+          <a routerLink="/manager/collaborateurs" class="btn-text">Tout voir →</a>
+        </div>
+        <div class="collab-list">
+          <div class="collab-item" *ngFor="let c of stats.collaborateursRecents">
+            <div class="collab-avatar" [style.background-color]="getAvatarColor(c.nom)">
+              <img *ngIf="c.photoUrl" [src]="'/api/uploads/' + c.photoUrl">
+              <span *ngIf="!c.photoUrl">{{ c.prenom[0] }}{{ c.nom[0] }}</span>
+            </div>
+            <div class="collab-info">
+              <span class="collab-name">{{ c.prenom }} {{ c.nom }}</span>
+              <span class="collab-poste">{{ c.poste }}</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
-
   </div>
 </div>

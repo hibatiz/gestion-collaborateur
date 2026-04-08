@@ -100,3 +100,42 @@ export interface CollaborateurDetail {
     role: string;
   };
 }
+
+export interface NiveauChange {
+  id: number;
+  ancienNiveau: string | null;
+  nouveauNiveau: string;
+  dateChangement: string;
+  description: string;
+}
+
+export interface EvolutionData {
+  competenceId: number;
+  competenceNom: string;
+  categorie: string;
+  historique: NiveauChange[];
+}
+
+export interface CollabDashboard {
+  collaborateurId: number;
+  nom: string;
+  prenom: string;
+  poste: string;
+  departement: string;
+  photoUrl: string | null;
+  anneesExperience: number;
+  email: string;
+  totalCompetences: number;
+  totalProjets: number;
+  competencesParCategorie: { [key: string]: number };
+  niveauxDistribution: { [key: string]: number };
+  projetsRecents: any[];
+  evolution: EvolutionData[];
+}
+
+export interface EnhancedDashboard extends DashboardStats {
+  evolutionMoyenneNiveaux: { competence: string; moyenne: number; count: number }[];
+  repartitionParDepartementEtCategorie: { 
+    [dept: string]: { [categorie: string]: number } 
+  };
+}

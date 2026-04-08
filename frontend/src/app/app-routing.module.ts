@@ -7,6 +7,7 @@ import { ProfilComponent } from './collaborateur/profil/profil.component';
 import { CompetencesComponent } from './collaborateur/competences/competences.component';
 import { ProjetsComponent } from './collaborateur/projets/projets.component';
 import { CvComponent } from './collaborateur/cv/cv.component';
+import { DashboardComponent } from './collaborateur/dashboard/dashboard.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -16,11 +17,12 @@ const routes: Routes = [
     canActivate: [AuthGuard], 
     data: { role: 'COLLABORATEUR' },
     children: [
+      { path: 'dashboard', component: DashboardComponent },
       { path: 'profil', component: ProfilComponent },
       { path: 'competences', component: CompetencesComponent },
       { path: 'projets', component: ProjetsComponent },
       { path: 'cv', component: CvComponent },
-      { path: '', redirectTo: 'profil', pathMatch: 'full' }
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
   { 

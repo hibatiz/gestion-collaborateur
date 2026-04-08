@@ -41,4 +41,10 @@ public class Projet {
     @ManyToOne
     @JoinColumn(name = "collaborateur_id", nullable = false)
     private Collaborateur collaborateur;
+
+    public int calculateDureeEnMois() {
+        if (dateDebut == null) return 0;
+        java.time.LocalDate end = (dateFin != null) ? dateFin : java.time.LocalDate.now();
+        return (int) java.time.temporal.ChronoUnit.MONTHS.between(dateDebut, end);
+    }
 }
