@@ -1,0 +1,344 @@
+.liste-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1B2A4A;
+    margin: 0;
+  }
+  p {
+    color: #64748B;
+    margin-top: 4px;
+    font-size: 14px;
+  }
+}
+
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  background: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+
+  .search-input-wrapper {
+    position: relative;
+    flex: 2;
+    min-width: 200px;
+
+    input {
+      width: 100%;
+      padding: 10px 12px 10px 38px;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+
+      &:focus {
+        border-color: #2E7CF6;
+      }
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94A3B8;
+    }
+  }
+
+  .select-wrapper {
+    flex: 1;
+    min-width: 150px;
+
+    select, .comp-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      font-size: 14px;
+      background: white;
+      cursor: pointer;
+      color: #374151;
+      outline: none;
+      transition: border-color 0.2s;
+
+      &:focus {
+        border-color: #2E7CF6;
+      }
+    }
+  }
+
+  .btn-reset {
+    background: #FEE2E2;
+    color: #DC2626;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #FECACA;
+    }
+  }
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+
+  @media (max-width: 1100px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.collab-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+
+  &:hover {
+    border-color: #2E7CF6;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(46,124,246,0.12);
+  }
+
+  .card-header {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 14px;
+
+    .avatar-circle {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .card-identity {
+      h3 {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1B2A4A;
+        margin: 0;
+      }
+      .poste {
+        font-size: 12px;
+        color: #64748B;
+        margin-top: 3px;
+      }
+    }
+  }
+
+  .card-dept {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+
+    .dept-badge {
+      background: #EFF6FF;
+      color: #1D4ED8;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .exp-badge {
+      background: #F0FDF4;
+      color: #065F46;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+  }
+
+  .card-stats {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-top: 1px solid #F1F5F9;
+    border-bottom: 1px solid #F1F5F9;
+    margin-bottom: 12px;
+
+    .stat-item {
+      flex: 1;
+      text-align: center;
+
+      .stat-val {
+        display: block;
+        font-size: 18px;
+        font-weight: 700;
+        color: #1B2A4A;
+      }
+
+      .stat-lbl {
+        font-size: 10px;
+        color: #94A3B8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    }
+
+    .stat-divider {
+      width: 1px;
+      height: 24px;
+      background: #E2E8F0;
+    }
+  }
+
+  .top-competences {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    flex: 1;
+
+    .comp-badge {
+      background: #F1F5F9;
+      color: #475569;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+  }
+
+  .card-footer {
+    text-align: right;
+    .voir-profil {
+      color: #2E7CF6;
+      font-size: 13px;
+      font-weight: 600;
+    }
+  }
+}
+
+.pagination {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+  flex-wrap: wrap;
+
+  button {
+    padding: 8px 16px;
+    border: 1px solid #E2E8F0;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      border-color: #2E7CF6;
+      color: #2E7CF6;
+    }
+
+    &.active {
+      background: #2E7CF6;
+      color: white;
+      border-color: #2E7CF6;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  .page-numbers {
+    display: flex;
+    gap: 6px;
+  }
+
+  .pagination-info {
+    font-size: 13px;
+    color: #64748B;
+    margin-left: 12px;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+  }
+
+  p {
+    color: #64748B;
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid #2E7CF6;
+    color: #2E7CF6;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+
+    &:hover {
+      background: rgba(46, 124, 246, 0.05);
+    }
+  }
+}
+
+.skeleton-collab-card {
+  height: 280px;
+  background: linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 12px;
+}

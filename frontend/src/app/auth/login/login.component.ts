@@ -64,7 +64,7 @@ export class LoginComponent implements OnInit {
 
   private redirectUser(role: string | null): void {
     if (role === 'COLLABORATEUR') {
-      this.router.navigate(['/collab/dashboard']);
+      this.router.navigate(['/collab/profil']);
     } else if (role === 'MANAGER') {
       this.router.navigate(['/manager/dashboard']);
     } else {

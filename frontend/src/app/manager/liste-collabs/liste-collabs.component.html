@@ -1,0 +1,119 @@
+<div class="liste-page">
+
+  <div class="page-header">
+    <div>
+      <h1>Collaborateurs</h1>
+      <p>{{ totalElements }} collaborateur(s) trouvé(s)</p>
+    </div>
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="filter-bar" [formGroup]="searchForm">
+    <div class="search-input-wrapper">
+      <span class="search-icon">🔍</span>
+      <input formControlName="nom" type="text" 
+             placeholder="Rechercher par nom...">
+    </div>
+    <div class="select-wrapper">
+      <input formControlName="competence" type="text" placeholder="Compétence..." class="comp-input">
+    </div>
+    <div class="select-wrapper">
+      <select formControlName="niveau">
+        <option value="">Tous les niveaux</option>
+        <option value="DEBUTANT">Débutant</option>
+        <option value="INTERMEDIAIRE">Intermédiaire</option>
+        <option value="AVANCE">Avancé</option>
+        <option value="EXPERT">Expert</option>
+      </select>
+    </div>
+    <div class="select-wrapper">
+      <select formControlName="departement">
+        <option value="">Tous les départements</option>
+        <option *ngFor="let d of departements" [value]="d">{{ d }}</option>
+      </select>
+    </div>
+    <button *ngIf="hasActiveFilters()" class="btn-reset" (click)="resetFilters()">
+      ✕ Réinitialiser
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="cards-grid">
+    <div class="skeleton-collab-card" *ngFor="let i of [1,2,3,4,5,6]"></div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && collabs.length === 0" class="empty-state">
+    <div class="empty-icon">👥</div>
+    <p>Aucun collaborateur ne correspond à votre recherche.</p>
+    <button class="btn-ghost" (click)="resetFilters()">Réinitialiser les filtres</button>
+  </div>
+
+  <!-- Collaborateur Cards Grid -->
+  <div *ngIf="!isLoading && collabs.length > 0" class="cards-grid">
+    <div class="collab-card" *ngFor="let c of collabs"
+         [routerLink]="['/manager/collaborateurs', c.id]">
+      
+      <div class="card-header">
+        <div class="avatar-circle" [style.background]="getAvatarColor(c.nom)">
+          <img *ngIf="c.photoUrl" [src]="c.photoUrl" [alt]="c.nom">
+          <span *ngIf="!c.photoUrl">{{ getInitials(c.prenom, c.nom) }}</span>
+        </div>
+        <div class="card-identity">
+          <h3>{{ c.prenom }} {{ c.nom }}</h3>
+          <p class="poste">{{ c.poste }}</p>
+        </div>
+      </div>
+
+      <div class="card-dept">
+        <span class="dept-badge">🏢 {{ c.departement }}</span>
+        <span class="exp-badge">{{ c.anneesExperience }} ans</span>
+      </div>
+
+      <div class="card-stats">
+        <div class="stat-item">
+          <span class="stat-val">{{ c.competencesCount }}</span>
+          <span class="stat-lbl">compétences</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-val">{{ c.projetsCount }}</span>
+          <span class="stat-lbl">projets</span>
+        </div>
+      </div>
+
+      <div class="top-competences" *ngIf="c.topCompetences?.length">
+        <span class="comp-badge" *ngFor="let comp of c.topCompetences">
+          {{ comp }}
+        </span>
+      </div>
+
+      <div class="card-footer">
+        <span class="voir-profil">Voir le profil →</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="totalPages > 1" class="pagination">
+    <button [disabled]="currentPage === 0" (click)="goToPage(currentPage - 1)">
+      ← Précédent
+    </button>
+    <span class="page-numbers">
+      <button *ngFor="let p of getPagesArray()" 
+              [class.active]="p === currentPage" 
+              (click)="goToPage(p)">
+        {{ p + 1 }}
+      </button>
+    </span>
+    <button [disabled]="currentPage === totalPages - 1" 
+            (click)="goToPage(currentPage + 1)">
+      Suivant →
+    </button>
+    <span class="pagination-info">
+      Page {{ currentPage + 1 }} / {{ totalPages }} 
+      ({{ totalElements }} résultats)
+    </span>
+  </div>
+
+</div>

@@ -1,0 +1,89 @@
+<div class="cv-container">
+  
+  <!-- Preview Card -->
+  <div class="cv-preview-card">
+    <div class="cv-preview-header">
+      <div class="cv-avatar">
+        <img *ngIf="collaborateur?.photoUrl" [src]="collaborateur!.photoUrl" alt="Photo de profil">
+        <div *ngIf="!collaborateur?.photoUrl" class="initials-avatar">
+          {{ (collaborateur?.prenom?.charAt(0) || '') + (collaborateur?.nom?.charAt(0) || '') }}
+        </div>
+      </div>
+      <div class="cv-preview-info">
+        <h2>{{ (collaborateur?.prenom || '') + ' ' + (collaborateur?.nom || '') }}</h2>
+        <p class="poste">{{ collaborateur?.poste || 'Poste non défini' }}</p>
+        <p class="email">{{ collaborateur?.email }}</p>
+      </div>
+    </div>
+
+    <div class="cv-stats">
+      <div class="stat">
+        <span class="stat-number">{{ competencesCount }}</span>
+        <span class="stat-label">Compétences</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">{{ projetsCount }}</span>
+        <span class="stat-label">Projets</span>
+      </div>
+      <div class="stat">
+        <span class="stat-number">{{ collaborateur?.anneesExperience || 0 }}</span>
+        <span class="stat-label">Ans d'exp.</span>
+      </div>
+    </div>
+
+    <p class="cv-summary">
+      Votre CV contiendra <strong>{{ competencesCount }}</strong> compétence(s) 
+      et <strong>{{ projetsCount }}</strong> projet(s) réalisés.
+    </p>
+
+    <button class="btn-generate" (click)="generateAndDownload()" [disabled]="isGenerating">
+      <span *ngIf="!isGenerating">⬇ Générer et télécharger mon CV (PDF)</span>
+      <span *ngIf="isGenerating" class="loading-text">
+        <span class="spinner"></span> Génération en cours...
+      </span>
+    </button>
+  </div>
+
+  <!-- History Section -->
+  <div class="cv-history">
+    <div class="history-header">
+      <h3>Historique des CV générés</h3>
+      <button class="btn-refresh" (click)="loadHistory()" [disabled]="isLoadingHistory">🔄</button>
+    </div>
+    
+    <div *ngIf="isLoadingHistory" class="loading-history">
+       Chargement de l'historique...
+    </div>
+    
+    <div *ngIf="!isLoadingHistory && cvHistory.length === 0" class="empty-history">
+      <p>Aucun CV réalisé pour le moment.</p>
+    </div>
+
+    <table *ngIf="!isLoadingHistory && cvHistory.length > 0" class="history-table">
+      <thead>
+        <tr>
+          <th>Version</th>
+          <th>Date de génération</th>
+          <th>Format</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let cv of cvHistory">
+          <td><span class="version-badge">v{{ cv.version }}</span></td>
+          <td>{{ cv.dateGeneration | date:'dd/MM/yyyy HH:mm':'':'fr' }}</td>
+          <td><span class="format-badge">{{ cv.format }}</span></td>
+          <td class="action-cell">
+            <div *ngIf="deleteConfirmId !== cv.id" class="action-btns">
+              <button class="btn-icon" title="Supprimer" (click)="confirmDeleteCv(cv.id)">🗑️</button>
+            </div>
+            <div *ngIf="deleteConfirmId === cv.id" class="inline-confirm">
+              <button class="btn-danger-sm" (click)="executeDeleteCv(cv.id)">Oui</button>
+              <button class="btn-ghost-sm" (click)="deleteConfirmId = null">Non</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,71 @@
+<div class="detail-page">
+  
+  <div class="detail-header">
+    <button class="btn-back" (click)="goBack()">← Retour à la liste</button>
+  </div>
+
+  <div *ngIf="isLoading" class="skeleton-detail"></div>
+
+  <div *ngIf="!isLoading && collab" class="detail-content">
+    
+    <!-- Profile Summary Card -->
+    <div class="profile-card">
+      <div class="profile-main">
+        <div class="avatar-large" [style.background]="getAvatarColor(collab.nom)">
+          {{ getInitials(collab.prenom, collab.nom) }}
+        </div>
+        <div class="profile-info">
+          <h1>{{ collab.prenom }} {{ collab.nom }}</h1>
+          <p class="poste">{{ collab.poste }} • {{ collab.departement }}</p>
+          <div class="badges">
+            <span class="badge-blue">Expérience: {{ collab.anneesExperience }} ans</span>
+            <span class="badge-gray">📧 {{ collab.email }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="profile-actions">
+        <span class="role-badge">Rôle: {{ collab.user.role }}</span>
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <!-- Competences Section -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3>🎓 Compétences</h3>
+        </div>
+        <div class="competences-list">
+          <div class="comp-item" *ngFor="let cc of collab.competences">
+            <div class="comp-info">
+              <span class="comp-name">{{ cc.competence.nom }}</span>
+              <span class="comp-cat">{{ cc.competence.categorie }}</span>
+            </div>
+            <div class="comp-level">
+              <span class="level-tag" [attr.data-level]="cc.niveau">{{ cc.niveau }}</span>
+              <span class="comp-date">Depuis {{ cc.dateAcquisition | date:'MMM yyyy' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projets Section -->
+      <div class="section-card">
+        <div class="section-header">
+          <h3>💼 Expériences Projets</h3>
+        </div>
+        <div class="projets-list">
+          <div class="projet-item" *ngFor="let p of collab.projets">
+             <div class="projet-date">{{ p.dateDebut | date:'MMM yyyy' }} - {{ (p.dateFin | date:'MMM yyyy') || 'Présent' }}</div>
+             <h4>{{ p.nom }}</h4>
+             <p class="role">Rôle: {{ p.role }}</p>
+             <p class="desc">{{ p.description }}</p>
+             <div class="techs">
+               <span class="tech-tag" *ngFor="let t of p.technologies.split(',')">{{ t.trim() }}</span>
+             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

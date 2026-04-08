@@ -6,8 +6,8 @@ import { ToastService, ToastMessage } from './toast.service';
   selector: 'app-toast',
   template: `
     <div class="toast-container" *ngIf="message">
-      <div class="toast" [ngClass]="message?.type">
-        <span>{{ message?.message }}</span>
+      <div class="toast" [ngClass]="message.type">
+        <span>{{ message.message }}</span>
         <button class="close-btn" (click)="close()">×</button>
       </div>
     </div>

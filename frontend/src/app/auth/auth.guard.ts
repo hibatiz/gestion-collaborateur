@@ -19,7 +19,7 @@ export class AuthGuard implements CanActivate {
       if (this.authService.isAuthenticated()) {
         const role = this.authService.getRole();
         if (role === 'COLLABORATEUR') {
-          return this.router.parseUrl('/collab/dashboard');
+          return this.router.parseUrl('/collab/profil');
         } else if (role === 'MANAGER') {
           return this.router.parseUrl('/manager/dashboard');
         }

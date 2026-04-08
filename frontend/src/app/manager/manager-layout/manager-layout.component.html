@@ -1,0 +1,29 @@
+<div class="manager-layout">
+  <nav class="top-nav">
+    <div class="nav-brand">
+      <span class="brand-icon">GC</span>
+      <span class="brand-text">Espace Manager</span>
+    </div>
+    <div class="nav-links">
+      <a routerLink="/manager/dashboard" routerLinkActive="active">
+        📊 Dashboard
+      </a>
+      <a routerLink="/manager/collaborateurs" routerLinkActive="active">
+        👥 Collaborateurs
+      </a>
+      <a routerLink="/manager/matrice" routerLinkActive="active">
+        📋 Matrice
+      </a>
+      <a routerLink="/manager/equipe" routerLinkActive="active">
+        🏗️ Équipe
+      </a>
+    </div>
+    <div class="nav-user">
+      <span class="username">{{ username }}</span>
+      <button class="btn-logout" (click)="logout()">Déconnexion</button>
+    </div>
+  </nav>
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

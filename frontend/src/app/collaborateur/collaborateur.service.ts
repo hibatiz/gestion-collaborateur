@@ -7,6 +7,7 @@ import {
   CompetenceRequest, 
   UpdateProfileRequest 
 } from '../shared/models/collaborateur.model';
+import { Projet, ProjetRequest } from '../shared/models/projet.model';
 
 @Injectable({
   providedIn: 'root'
@@ -44,5 +45,21 @@ export class CollaborateurService {
 
   deleteCompetence(collabId: number, compId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${collabId}/competences/${compId}`);
+  }
+
+  getProjets(id: number): Observable<Projet[]> {
+    return this.http.get<Projet[]>(`${this.apiUrl}/${id}/projets`);
+  }
+
+  addProjet(id: number, req: ProjetRequest): Observable<Projet> {
+    return this.http.post<Projet>(`${this.apiUrl}/${id}/projets`, req);
+  }
+
+  updateProjet(collabId: number, projId: number, req: ProjetRequest): Observable<Projet> {
+    return this.http.put<Projet>(`${this.apiUrl}/${collabId}/projets/${projId}`, req);
+  }
+
+  deleteProjet(collabId: number, projId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${collabId}/projets/${projId}`);
   }
 }

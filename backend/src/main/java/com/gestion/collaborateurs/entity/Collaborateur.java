@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -62,4 +63,15 @@ public class Collaborateur {
     @Builder.Default
     @ToString.Exclude
     private List<CollaborateurCompetence> competences = new ArrayList<>();
+
+    @OneToMany(mappedBy = "collaborateur", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("dateDebut DESC")
+    @Builder.Default
+    @ToString.Exclude
+    private List<Projet> projets = new ArrayList<>();
+
+    @OneToMany(mappedBy = "collaborateur", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    @ToString.Exclude
+    private List<CV> cvs = new ArrayList<>();
 }

@@ -1,16 +1,7 @@
 package com.gestion.collaborateurs.init;
 
-import com.gestion.collaborateurs.entity.Categorie;
-import com.gestion.collaborateurs.entity.Collaborateur;
-import com.gestion.collaborateurs.entity.CollaborateurCompetence;
-import com.gestion.collaborateurs.entity.Competence;
-import com.gestion.collaborateurs.entity.Niveau;
-import com.gestion.collaborateurs.entity.Role;
-import com.gestion.collaborateurs.entity.User;
-import com.gestion.collaborateurs.repository.CollaborateurCompetenceRepository;
-import com.gestion.collaborateurs.repository.CollaborateurRepository;
-import com.gestion.collaborateurs.repository.CompetenceRepository;
-import com.gestion.collaborateurs.repository.UserRepository;
+import com.gestion.collaborateurs.entity.*;
+import com.gestion.collaborateurs.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -18,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -28,6 +20,8 @@ public class DataInitializer implements CommandLineRunner {
     private final CollaborateurRepository collaborateurRepository;
     private final CompetenceRepository competenceRepository;
     private final CollaborateurCompetenceRepository collaborateurCompetenceRepository;
+    private final ProjetRepository projetRepository;
+    private final ManagerRepository managerRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -51,6 +45,15 @@ public class DataInitializer implements CommandLineRunner {
 
             userRepository.save(collab);
             userRepository.save(manager);
+            
+            if (managerRepository.count() == 0) {
+                Manager mgr = Manager.builder()
+                        .service("Direction Technique")
+                        .telephone("01 23 45 67 89")
+                        .user(manager)
+                        .build();
+                managerRepository.save(mgr);
+            }
             
             // Create Collaborateur Profile
             Collaborateur profile1 = Collaborateur.builder()
@@ -92,6 +95,94 @@ public class DataInitializer implements CommandLineRunner {
                     .build());
 
             log.info("Seed data initialized. Users created: collab1, manager1, with competences added");
+
+            // Seed more collaborators for search testing
+            seedMoreCollaborators();
         }
+
+        if (projetRepository.count() == 0) {
+            log.info("Seeding sample projects...");
+            User collabUser = userRepository.findByUsername("collab1").orElseThrow();
+            Collaborateur profile1 = collaborateurRepository.findByUserId(collabUser.getId()).orElseThrow();
+
+            Projet p1 = Projet.builder()
+                    .nom("Plateforme E-commerce")
+                    .description("Développement d'une plateforme de vente en ligne B2C")
+                    .dateDebut(LocalDate.of(2023, 1, 1))
+                    .dateFin(LocalDate.of(2023, 6, 30))
+                    .role("Développeur Full-Stack")
+                    .technologies("Java,Spring Boot,Angular,MySQL")
+                    .collaborateur(profile1)
+                    .build();
+
+            Projet p2 = Projet.builder()
+                    .nom("Application Mobile RH")
+                    .description("Application de gestion des congés et absences")
+                    .dateDebut(LocalDate.of(2023, 7, 1))
+                    .dateFin(null)
+                    .role("Lead Developer")
+                    .technologies("React Native,Node.js,PostgreSQL")
+                    .collaborateur(profile1)
+                    .build();
+
+            projetRepository.saveAll(List.of(p1, p2));
+            log.info("Sample projects seeded.");
+        }
+    }
+
+    private void seedMoreCollaborators() {
+        // Collab 2: Dupont Thomas
+        User user2 = createCollabUser("collab2");
+        Collaborateur c2 = collaborateurRepository.save(Collaborateur.builder()
+            .nom("Dupont").prenom("Thomas").poste("DevOps Engineer")
+            .departement("Infrastructure").anneesExperience(6)
+            .email("t.dupont@company.com").user(user2).build());
+        
+        addSkill(c2, "Docker", Categorie.OUTIL, Niveau.EXPERT);
+        addSkill(c2, "Kubernetes", Categorie.OUTIL, Niveau.AVANCE);
+        addSkill(c2, "Linux", Categorie.TECHNIQUE, Niveau.EXPERT);
+
+        // Collab 3: Bernard Julie
+        User user3 = createCollabUser("collab3");
+        Collaborateur c3 = collaborateurRepository.save(Collaborateur.builder()
+            .nom("Bernard").prenom("Julie").poste("Data Scientist")
+            .departement("Data").anneesExperience(3)
+            .email("j.bernard@company.com").user(user3).build());
+        
+        addSkill(c3, "Python", Categorie.TECHNIQUE, Niveau.EXPERT);
+        addSkill(c3, "TensorFlow", Categorie.TECHNIQUE, Niveau.AVANCE);
+        addSkill(c3, "SQL", Categorie.OUTIL, Niveau.AVANCE);
+
+        // Collab 4: Leroy Marc
+        User user4 = createCollabUser("collab4");
+        Collaborateur c4 = collaborateurRepository.save(Collaborateur.builder()
+            .nom("Leroy").prenom("Marc").poste("UX Designer")
+            .departement("Design").anneesExperience(5)
+            .email("m.leroy@company.com").user(user4).build());
+        
+        addSkill(c4, "Figma", Categorie.OUTIL, Niveau.EXPERT);
+        addSkill(c4, "CSS", Categorie.TECHNIQUE, Niveau.AVANCE);
+        addSkill(c4, "Angular", Categorie.TECHNIQUE, Niveau.INTERMEDIAIRE);
+    }
+
+    private User createCollabUser(String username) {
+        return userRepository.save(User.builder()
+            .username(username)
+            .password(passwordEncoder.encode("password123"))
+            .role(Role.COLLABORATEUR)
+            .enabled(true)
+            .build());
+    }
+
+    private void addSkill(Collaborateur collab, String compName, Categorie cat, Niveau niveau) {
+        Competence comp = competenceRepository.findByNomIgnoreCase(compName)
+            .orElseGet(() -> competenceRepository.save(Competence.builder().nom(compName).categorie(cat).build()));
+        
+        collaborateurCompetenceRepository.save(CollaborateurCompetence.builder()
+            .collaborateur(collab)
+            .competence(comp)
+            .niveau(niveau)
+            .dateAcquisition(LocalDate.now().minusYears(1))
+            .build());
     }
 }

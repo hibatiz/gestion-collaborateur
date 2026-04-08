@@ -5,21 +5,8 @@ import { AuthGuard } from './auth/auth.guard';
 import { CollabLayoutComponent } from './collaborateur/collab-layout/collab-layout.component';
 import { ProfilComponent } from './collaborateur/profil/profil.component';
 import { CompetencesComponent } from './collaborateur/competences/competences.component';
-
-@Component({
-  template: '<h2>Espace Manager — À venir</h2>'
-})
-export class ManagerDashboardComponent {}
-
-@Component({
-  template: '<h2>Projets — Sprint 2</h2>'
-})
-export class ProjetsComponent {}
-
-@Component({
-  template: '<h2>CV — Sprint 2</h2>'
-})
-export class CvComponent {}
+import { ProjetsComponent } from './collaborateur/projets/projets.component';
+import { CvComponent } from './collaborateur/cv/cv.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -37,21 +24,16 @@ const routes: Routes = [
     ]
   },
   { 
-    path: 'manager/dashboard', 
-    component: ManagerDashboardComponent, 
+    path: 'manager', 
     canActivate: [AuthGuard], 
-    data: { role: 'MANAGER' } 
+    data: { role: 'MANAGER' },
+    loadChildren: () => import('./manager/manager.module').then(m => m.ManagerModule)
   },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }
 ];
 
 @NgModule({
-  declarations: [
-    ManagerDashboardComponent,
-    ProjetsComponent,
-    CvComponent
-  ],
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })

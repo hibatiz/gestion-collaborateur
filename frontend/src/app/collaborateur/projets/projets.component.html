@@ -1,0 +1,122 @@
+<div class="projets-header">
+  <div>
+    <h2>Mes Projets</h2>
+    <span class="count-badge">{{ projets.length }} projet(s)</span>
+  </div>
+  <button class="btn-primary" (click)="openAddPanel()">+ Ajouter un projet</button>
+</div>
+
+<!-- Empty state -->
+<div *ngIf="!isLoading && projets.length === 0" class="empty-state">
+  <div class="empty-icon">📁</div>
+  <p>Aucun projet enregistré.</p>
+  <button class="btn-ghost" (click)="openAddPanel()">Ajouter mon premier projet</button>
+</div>
+
+<!-- Timeline -->
+<div class="timeline" *ngIf="!isLoading && projets.length > 0">
+  <div class="timeline-item" *ngFor="let p of projets">
+    <div class="timeline-dot" [class.en-cours]="p.enCours"></div>
+    <div class="timeline-content">
+      <div class="projet-header">
+        <h3>{{ p.nom }}</h3>
+        <span class="badge" [class.badge-success]="p.enCours" 
+              [class.badge-grey]="!p.enCours">
+          {{ p.enCours ? 'En cours' : 'Terminé' }}
+        </span>
+      </div>
+      <p class="duration">
+        {{ p.dateDebut | date:'MMM yyyy':'':'fr' }} → 
+        {{ p.enCours ? 'En cours' : (p.dateFin | date:'MMM yyyy':'':'fr') }}
+        <span class="duration-total">({{ p.dureeEnMois }} mois)</span>
+      </p>
+      <span class="role-badge">{{ p.role }}</span>
+      <p class="description">{{ p.description }}</p>
+      <div class="tech-chips">
+        <span class="chip" *ngFor="let tech of p.technologies?.split(',')">
+          {{ tech.trim() }}
+        </span>
+      </div>
+      
+      <div class="actions" *ngIf="deleteConfirmId !== p.id">
+        <button class="btn-icon" (click)="openEditPanel(p)" title="Modifier">✏️</button>
+        <button class="btn-icon btn-danger" (click)="confirmDelete(p.id)" title="Supprimer">🗑️</button>
+      </div>
+      
+      <div class="delete-confirm" *ngIf="deleteConfirmId === p.id">
+        <span>Supprimer "{{ p.nom }}" ?</span>
+        <div class="confirm-btns">
+            <button class="btn-danger-sm" (click)="executeDelete(p.id)">Confirmer</button>
+            <button class="btn-ghost-sm" (click)="cancelDelete()">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide-in Side Panel Overlay -->
+<div class="panel-overlay" [class.open]="isPanelOpen" (click)="closePanel()"></div>
+<div class="side-panel" [class.open]="isPanelOpen">
+  <div class="panel-header">
+    <h3>{{ editingProjet ? 'Modifier le projet' : 'Nouveau projet' }}</h3>
+    <button class="btn-close" (click)="closePanel()">✕</button>
+  </div>
+  
+  <form [formGroup]="projetForm" (ngSubmit)="submitForm()">
+    <div class="form-group">
+      <label>Nom du projet *</label>
+      <input formControlName="nom" type="text" placeholder="Ex: Plateforme E-commerce">
+      <span class="error" *ngIf="projetForm.get('nom')?.invalid && projetForm.get('nom')?.touched">
+        Le nom est requis (max 200 chars)
+      </span>
+    </div>
+
+    <div class="form-group">
+      <label>Description</label>
+      <textarea formControlName="description" rows="3" placeholder="Décrivez brièvement le projet..."></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date de début *</label>
+        <input formControlName="dateDebut" type="date">
+      </div>
+      <div class="form-group">
+        <label>Date de fin</label>
+        <input formControlName="dateFin" type="date">
+      </div>
+    </div>
+
+    <div class="checkbox-group">
+      <input type="checkbox" formControlName="enCours" (change)="onEnCoursChange()" id="enCours">
+      <label for="enCours">Projet en cours</label>
+    </div>
+
+    <div class="form-group">
+      <label>Rôle tenu</label>
+      <input formControlName="role" type="text" placeholder="Ex: Développeur Senior">
+    </div>
+
+    <div class="form-group">
+      <label>Technologies</label>
+      <div class="tag-input-container">
+        <span class="tag" *ngFor="let tech of techTags">
+          {{ tech }}
+          <button type="button" (click)="removeTechTag(tech)">×</button>
+        </span>
+        <input [(ngModel)]="techInput" [ngModelOptions]="{standalone: true}"
+               (keydown)="onTechKeydown($event)"
+               placeholder="Tapez et appuyez sur Entrée">
+      </div>
+      <p class="help-text">Séparez par des virgules ou Entrée</p>
+    </div>
+
+    <div class="panel-actions">
+      <button type="button" class="btn-ghost" (click)="closePanel()">Annuler</button>
+      <button type="submit" class="btn-primary" [disabled]="projetForm.invalid || isSubmitting">
+        <span *ngIf="isSubmitting">Traitement...</span>
+        <span *ngIf="!isSubmitting">{{ editingProjet ? 'Enregistrer les modifications' : 'Ajouter le projet' }}</span>
+      </button>
+    </div>
+  </form>
+</div>

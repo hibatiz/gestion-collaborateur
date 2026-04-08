@@ -1,0 +1,78 @@
+<div class="dashboard-container">
+  
+  <div class="page-header">
+    <h1>Tableau de bord</h1>
+    <p>Vue d'ensemble de la plateforme</p>
+  </div>
+
+  <!-- Loading skeleton -->
+  <div *ngIf="isLoading" class="kpi-grid">
+    <div class="skeleton-card" *ngFor="let i of [1,2,3,4]"></div>
+  </div>
+
+  <div *ngIf="!isLoading && stats" class="dashboard-content">
+
+    <!-- KPI Cards Row -->
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-icon">👥</div>
+        <div class="kpi-value">{{ stats.totalCollaborateurs }}</div>
+        <div class="kpi-label">Collaborateurs</div>
+      </div>
+      <div class="kpi-card kpi-green">
+        <div class="kpi-icon">⭐</div>
+        <div class="kpi-value">{{ stats.totalCompetences }}</div>
+        <div class="kpi-label">Compétences</div>
+      </div>
+      <div class="kpi-card kpi-orange">
+        <div class="kpi-icon">🏢</div>
+        <div class="kpi-value">
+          {{ (stats.repartitionParDepartement | keyvalue | slice:0:1)?.[0]?.key || 'N/A' }}
+        </div>
+        <div class="kpi-label">Département principal</div>
+      </div>
+      <div class="kpi-card kpi-purple">
+        <div class="kpi-icon">📈</div>
+        <div class="kpi-value">
+          {{ stats.repartitionNiveaux['EXPERT'] || 0 }}
+        </div>
+        <div class="kpi-label">Experts</div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Top 5 Compétences</h3>
+        <div class="chart-wrapper">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>Répartition des Niveaux</h3>
+        <div class="chart-wrapper">
+          <canvas id="doughnutChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Collaborateurs -->
+    <div class="recent-section">
+      <h3>Derniers Collaborateurs</h3>
+      <div class="recent-grid">
+        <div class="recent-card" 
+             *ngFor="let c of stats.collaborateursRecents"
+             [routerLink]="['/manager/collaborateurs', c.id]">
+          <div class="avatar" [style.background]="getAvatarColor(c.nom)">
+            {{ c.prenom[0] }}{{ c.nom[0] }}
+          </div>
+          <div class="recent-info">
+            <div class="recent-name">{{ c.prenom }} {{ c.nom }}</div>
+            <div class="recent-poste">{{ c.poste }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
