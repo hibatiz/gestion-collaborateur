@@ -11,6 +11,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +21,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/collaborateur")
 @RequiredArgsConstructor
+@Tag(name = "Collaborateur", description = "Endpoints pour la gestion des profils et compétences des collaborateurs")
 public class CollaborateurController {
 
     private final CollaborateurService collaborateurService;
@@ -25,29 +29,34 @@ public class CollaborateurController {
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('COLLABORATEUR')")
+    @Operation(summary = "Récupérer le profil du collaborateur connecté")
     public ResponseEntity<CollaborateurDTO> getCurrentCollaborateur(@AuthenticationPrincipal User user) {
         return ResponseEntity.ok(collaborateurService.getCollaborateurByUserId(user.getId()));
     }
 
     @GetMapping("/{id}/dashboard")
     @PreAuthorize("hasAnyRole('COLLABORATEUR','MANAGER')")
+    @Operation(summary = "Récupérer les statistiques du dashboard pour un collaborateur")
     public ResponseEntity<CollabDashboardDTO> getDashboard(@PathVariable Long id) {
         return ResponseEntity.ok(collabDashboardService.getDashboard(id));
     }
 
     @GetMapping("/{id}/evolution")
     @PreAuthorize("hasAnyRole('COLLABORATEUR','MANAGER')")
+    @Operation(summary = "Récupérer l'historique d'évolution des compétences")
     public ResponseEntity<List<EvolutionDTO>> getEvolution(@PathVariable Long id) {
         return ResponseEntity.ok(collabDashboardService.getEvolution(id));
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Récupérer un collaborateur par son ID")
     public ResponseEntity<CollaborateurDTO> getCollaborateurById(@PathVariable Long id) {
         return ResponseEntity.ok(collaborateurService.getCollaborateurById(id));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('COLLABORATEUR')")
+    @Operation(summary = "Mettre à jour les informations du profil")
     public ResponseEntity<CollaborateurDTO> updateProfile(
             @PathVariable Long id,
             @RequestBody UpdateProfileRequest request,
@@ -57,6 +66,7 @@ public class CollaborateurController {
 
     @PostMapping("/{id}/photo")
     @PreAuthorize("hasRole('COLLABORATEUR')")
+    @Operation(summary = "Uploader une photo de profil")
     public ResponseEntity<Map<String, String>> uploadPhoto(
             @PathVariable Long id,
             @RequestParam("file") MultipartFile file,
@@ -83,6 +93,7 @@ public class CollaborateurController {
 
     @PutMapping("/{id}/competences/{cid}")
     @PreAuthorize("hasRole('COLLABORATEUR')")
+    @Operation(summary = "Mettre à jour le niveau d'une compétence")
     public ResponseEntity<CompetenceDTO> updateNiveau(
             @PathVariable Long id,
             @PathVariable Long cid,

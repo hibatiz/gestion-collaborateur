@@ -1,5 +1,6 @@
 package com.gestion.collaborateurs.controller;
 
+import com.gestion.collaborateurs.service.AuthService;
 import com.gestion.collaborateurs.dto.LoginRequest;
 import com.gestion.collaborateurs.dto.LoginResponse;
 import com.gestion.collaborateurs.entity.User;
@@ -22,49 +23,29 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "Login and token management")
 public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
-    private final JwtTokenProvider tokenProvider;
-
-    @Value("${jwt.expiration}")
-    private long jwtExpirationDate;
+    private final AuthService authService;
 
     @PostMapping("/login")
+    @Operation(summary = "Authentifier un utilisateur et retourner un token JWT")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginRequest.getUsername(),
-                            loginRequest.getPassword()
-                    )
-            );
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            
-            User userDetails = (User) authentication.getPrincipal();
-
-            String jwt = tokenProvider.generateToken(userDetails);
-
-            LoginResponse response = LoginResponse.builder()
-                    .token(jwt)
-                    .role(userDetails.getRole().name())
-                    .username(userDetails.getUsername())
-                    .expiresIn(jwtExpirationDate)
-                    .build();
-
+            LoginResponse response = authService.login(loginRequest);
             return ResponseEntity.ok(response);
-
         } catch (BadCredentialsException ex) {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "Unauthorized");
             errorResponse.put("message", "Identifiants incorrects");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         } catch (Exception ex) {
-            ex.printStackTrace();
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "Unauthorized");
             errorResponse.put("message", "Identifiants incorrects");

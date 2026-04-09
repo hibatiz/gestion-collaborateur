@@ -14,6 +14,7 @@ import java.util.Optional;
 public interface CompetenceRepository extends JpaRepository<Competence, Long> {
     List<Competence> findByCategorie(Categorie categorie);
     Optional<Competence> findByNomIgnoreCase(String nom);
+    List<Competence> findAllByOrderByNomAsc();
 
     @Query("SELECT comp.nom, COUNT(cc) as cnt FROM CollaborateurCompetence cc " +
            "JOIN cc.competence comp GROUP BY comp.nom ORDER BY cnt DESC")

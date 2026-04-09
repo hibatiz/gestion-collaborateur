@@ -50,6 +50,7 @@ public class ManagerService {
         // 1. evolutionMoyenneNiveaux
         List<CollaborateurCompetence> allCC = collaborateurCompetenceRepository.findAll();
         Map<String, List<CollaborateurCompetence>> groupedByComp = allCC.stream()
+                .filter(cc -> cc.getCompetence() != null)
                 .collect(groupingBy(cc -> cc.getCompetence().getNom()));
 
         List<Map<String, Object>> evolutionMoyenneNiveaux = groupedByComp.entrySet().stream()
@@ -81,8 +82,10 @@ public class ManagerService {
             if (dept == null) continue;
             result.putIfAbsent(dept, new HashMap<>());
             for (CollaborateurCompetence cc : c.getCompetences()) {
-                String cat = cc.getCompetence().getCategorie().name();
-                result.get(dept).put(cat, result.get(dept).getOrDefault(cat, 0L) + 1);
+                if (cc.getCompetence() != null && cc.getCompetence().getCategorie() != null) {
+                    String cat = cc.getCompetence().getCategorie().name();
+                    result.get(dept).put(cat, result.get(dept).getOrDefault(cat, 0L) + 1);
+                }
             }
         }
 
@@ -116,6 +119,7 @@ public class ManagerService {
         // Build sorted list of all unique competence names
         List<String> allCompetences = collabs.stream()
                 .flatMap(c -> c.getCompetences().stream())
+                .filter(cc -> cc.getCompetence() != null)
                 .map(cc -> cc.getCompetence().getNom())
                 .distinct()
                 .sorted()
@@ -125,8 +129,11 @@ public class ManagerService {
         List<CollabRowDTO> rows = collabs.stream().map(c -> {
             Map<String, String> niveaux = new LinkedHashMap<>();
             allCompetences.forEach(compName -> niveaux.put(compName, null));
-            c.getCompetences().forEach(cc ->
-                    niveaux.put(cc.getCompetence().getNom(), cc.getNiveau().name()));
+            c.getCompetences().forEach(cc -> {
+                if (cc.getCompetence() != null && cc.getNiveau() != null) {
+                    niveaux.put(cc.getCompetence().getNom(), cc.getNiveau().name());
+                }
+            });
             return CollabRowDTO.builder()
                     .collaborateurId(c.getId())
                     .nom(c.getNom())
@@ -427,7 +434,9 @@ public class ManagerService {
             repartitionNiveaux.put(niveau.name(), 0L);
         }
         competenceRepository.countByNiveau().forEach(row -> {
-            repartitionNiveaux.put(row[0].toString(), (Long) row[1]);
+            if (row[0] != null && row[1] != null) {
+                repartitionNiveaux.put(row[0].toString(), ((Number) row[1]).longValue());
+            }
         });
 
         // Recent collaborators

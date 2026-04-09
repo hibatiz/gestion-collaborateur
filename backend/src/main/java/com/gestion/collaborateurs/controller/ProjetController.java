@@ -13,11 +13,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/collaborateur/{id}/projets")
 @RequiredArgsConstructor
+@Tag(name = "Project", description = "Endpoints pour la gestion des expériences professionnelles et projets")
 public class ProjetController {
 
     private final ProjetService projetService;
@@ -30,12 +34,14 @@ public class ProjetController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('COLLABORATEUR', 'MANAGER')")
+    @Operation(summary = "Récupérer la liste des projets d'un collaborateur")
     public ResponseEntity<List<ProjetDTO>> getProjets(@PathVariable Long id) {
         return ResponseEntity.ok(projetService.getProjets(id));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('COLLABORATEUR')")
+    @Operation(summary = "Ajouter une nouvelle expérience projet")
     public ResponseEntity<ProjetDTO> addProjet(@PathVariable Long id, @Valid @RequestBody ProjetRequest request) {
         return new ResponseEntity<>(projetService.addProjet(id, request, getCurrentUserId()), HttpStatus.CREATED);
     }

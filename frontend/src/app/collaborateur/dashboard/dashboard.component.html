@@ -15,7 +15,7 @@
           <img *ngIf="dashboardData.photoUrl" 
                [src]="'/api/uploads/' + dashboardData.photoUrl">
           <div *ngIf="!dashboardData.photoUrl" class="initials-hero">
-            {{ (dashboardData.prenom?.[0] || '') + (dashboardData.nom?.[0] || '') }}
+            {{ (dashboardData.prenom ? dashboardData.prenom[0] : '') + (dashboardData.nom ? dashboardData.nom[0] : '') }}
           </div>
         </div>
         <div class="hero-info">

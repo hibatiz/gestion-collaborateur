@@ -3,21 +3,27 @@ package com.gestion.collaborateurs.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "projet")
 public class Projet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(nullable = false, length = 200)
@@ -40,6 +46,7 @@ public class Projet {
 
     @ManyToOne
     @JoinColumn(name = "collaborateur_id", nullable = false)
+    @ToString.Exclude
     private Collaborateur collaborateur;
 
     public int calculateDureeEnMois() {

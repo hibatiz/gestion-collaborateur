@@ -5,12 +5,14 @@ import { Observable, tap } from 'rxjs';
 import { LoginRequest, LoginResponse } from '../shared/models/user.model';
 import { TokenService } from '../core/token.service';
 
+import { environment } from '../../environments/environment';
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  private readonly API_URL = 'http://localhost:8080/api/auth';
+  private readonly API_URL = `${environment.apiUrl}/auth`;
 
   constructor(
     private http: HttpClient,

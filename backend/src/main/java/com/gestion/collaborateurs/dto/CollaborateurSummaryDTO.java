@@ -28,6 +28,7 @@ public class CollaborateurSummaryDTO {
 
     public static CollaborateurSummaryDTO fromEntity(Collaborateur c) {
         List<String> top3 = c.getCompetences().stream()
+            .filter(cc -> cc.getCompetence() != null)
             .limit(3)
             .map(cc -> cc.getCompetence().getNom())
             .collect(Collectors.toList());

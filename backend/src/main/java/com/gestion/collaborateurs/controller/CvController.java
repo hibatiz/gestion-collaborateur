@@ -14,11 +14,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/cv")
 @RequiredArgsConstructor
+@Tag(name = "CV", description = "Endpoints pour la génération et l'export de CV au format PDF")
 public class CvController {
 
     private final CvService cvService;
@@ -32,6 +36,7 @@ public class CvController {
 
     @GetMapping("/generate/{collaborateurId}")
     @PreAuthorize("hasRole('COLLABORATEUR')")
+    @Operation(summary = "Générer et sauvegarder le CV d'un collaborateur au format PDF")
     public ResponseEntity<byte[]> generateCv(@PathVariable Long collaborateurId) {
         byte[] pdfBytes = cvService.generateAndSave(collaborateurId, getCurrentUserId());
         
@@ -48,6 +53,7 @@ public class CvController {
 
     @GetMapping("/history/{collaborateurId}")
     @PreAuthorize("hasAnyRole('COLLABORATEUR', 'MANAGER')")
+    @Operation(summary = "Récupérer l'historique des CV générés pour un collaborateur")
     public ResponseEntity<List<CvDTO>> getHistory(@PathVariable Long collaborateurId) {
         return ResponseEntity.ok(cvService.getHistory(collaborateurId));
     }
