@@ -7,11 +7,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #1B2A4A;
-  color: white;
+  background: #FFFFFF;
+  color: #1B2A4A;
   padding: 0 32px;
   height: 64px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -21,19 +21,22 @@
     align-items: center;
     gap: 12px;
 
-    .brand-icon {
-      background: #2E7CF6;
-      color: white;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-weight: 700;
-      font-size: 18px;
+    .brand-logo {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
     }
 
     .brand-text {
+      font-family: 'Inter', 'Poppins', sans-serif;
       font-weight: 600;
-      font-size: 18px;
-      letter-spacing: 0.5px;
+      font-size: 17px;
+      color: #1B2A4A;
+      letter-spacing: 0.2px;
+      
+      @media (max-width: 850px) {
+        display: none;
+      }
     }
   }
 
@@ -42,7 +45,7 @@
     gap: 8px;
 
     a {
-      color: rgba(255, 255, 255, 0.7);
+      color: #64748B;
       text-decoration: none;
       padding: 8px 16px;
       border-radius: 6px;
@@ -53,13 +56,14 @@
       gap: 6px;
 
       &:hover {
-        color: white;
-        background: rgba(255, 255, 255, 0.1);
+        color: #1B2A4A;
+        background: #F1F5F9;
       }
 
       &.active {
-        color: white;
-        background: #2E7CF6;
+        color: #2E7CF6;
+        background: #EFF6FF;
+        font-weight: 500;
       }
     }
   }
@@ -72,12 +76,13 @@
     .username {
       font-size: 14px;
       font-weight: 500;
+      color: #1B2A4A;
     }
 
     .btn-logout {
       background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      color: white;
+      border: 1px solid #CBD5E1;
+      color: #64748B;
       padding: 6px 14px;
       border-radius: 6px;
       cursor: pointer;
@@ -85,8 +90,9 @@
       transition: all 0.2s;
 
       &:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: white;
+        background: #FEF2F2;
+        color: #EF4444;
+        border-color: #EF4444;
       }
     }
   }

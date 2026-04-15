@@ -5,7 +5,8 @@ import localeFr from '@angular/common/locales/fr';
 
 registerLocaleData(localeFr);
 
-import { AppRoutingModule } from './app-routing.module';
+import { TitleStrategy } from '@angular/router';
+import { AppRoutingModule, TemplatePageTitleStrategy } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AuthModule } from './auth/auth.module';
 import { SharedModule } from './shared/shared.module';
@@ -23,7 +24,8 @@ import { CollaborateurModule } from './collaborateur/collaborateur.module';
     CollaborateurModule
   ],
   providers: [
-    { provide: LOCALE_ID, useValue: 'fr-FR' }
+    { provide: LOCALE_ID, useValue: 'fr-FR' },
+    { provide: TitleStrategy, useClass: TemplatePageTitleStrategy }
   ],
   bootstrap: [AppComponent]
 })

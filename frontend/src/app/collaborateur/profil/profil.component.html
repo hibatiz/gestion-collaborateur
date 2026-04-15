@@ -5,7 +5,7 @@
 <div class="profile-layout" *ngIf="profile">
   <div class="profile-sidebar">
     <div class="photo-container">
-      <img [src]="profile.photoUrl ? '/api/uploads/' + profile.photoUrl : 'https://via.placeholder.com/150'" 
+      <img [src]="previewUrl || (profile.photoUrl ? '/api/uploads/' + profile.photoUrl : 'https://via.placeholder.com/150')" 
            alt="Profile Photo" class="profile-photo"/>
       <div class="photo-overlay" (click)="fileInput.click()">
         <span>📷</span>

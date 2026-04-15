@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CollaborateurService } from '../collaborateur.service';
 import { ToastService } from '../../shared/toast/toast.service';
@@ -14,6 +15,7 @@ export class ProfilComponent implements OnInit {
   profileForm!: FormGroup;
   profile: Collaborateur | null = null;
   loading = false;
+  previewUrl: SafeUrl | null = null;
   // Fallback ID for testing until a login that maps to collaborateur ID is made.
   // Assuming '1' since data initializer creates collab profile 1.
   collabId = 1;
@@ -21,7 +23,9 @@ export class ProfilComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private collabService: CollaborateurService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private cdr: ChangeDetectorRef,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit() {
@@ -81,28 +85,39 @@ export class ProfilComponent implements OnInit {
   }
 
   onFileSelected(event: any) {
+    if (this.loading) return; // Prevent concurrent actions
     const file: File = event.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
         this.toastService.show('Le fichier est trop volumineux (max 5MB)', 'error');
+        event.target.value = ''; // Clear for same file selection
         return;
       }
       
-      // Optioanally preview right away with FileReader, but we upload then update photoUrl
+      this.loading = true; // Lock the UI to prevent saveProfile race conditions
+      
       const reader = new FileReader();
       reader.onload = (e: any) => {
-         if (this.profile) this.profile.photoUrl = e.target.result; // temp preview
+         // Use DomSanitizer to explicitly trust the Data URL for the image src
+         this.previewUrl = this.sanitizer.bypassSecurityTrustUrl(e.target.result as string);
+         this.cdr.detectChanges();
       };
       reader.readAsDataURL(file);
 
       this.collabService.uploadPhoto(this.collabId, file).subscribe({
         next: (res) => {
           this.toastService.show('Photo mise à jour', 'success');
-          // Update profile photo url logic here if backend returned pure file name
           if (this.profile) this.profile.photoUrl = res.photoUrl; 
+          this.previewUrl = null;
+          event.target.value = ''; // Clear for same file selection
+          this.loading = false; // Restore UI state
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.toastService.show("Erreur lors de l'upload", 'error');
+          event.target.value = ''; // Clear for same file selection
+          this.loading = false; // Restore UI state
+          this.cdr.detectChanges();
         }
       });
     }
