@@ -1,5 +1,5 @@
 <div class="page-title-box">
-  <h1>{{ profile?.prenom }} {{ profile?.nom }}</h1>
+  <h1 class="gradient-text">{{ profile?.prenom }} {{ profile?.nom }}</h1>
 </div>
 
 <div class="profile-layout" *ngIf="profile">
@@ -14,7 +14,7 @@
     </div>
   </div>
 
-  <div class="profile-main card">
+  <div class="profile-main glass-card">
     <div class="card-header">
       <h2>Informations Générales</h2>
       <button class="btn btn-primary" *ngIf="!isEditMode" (click)="toggleEditMode()">Modifier le profil</button>

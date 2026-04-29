@@ -1,8 +1,8 @@
 <div class="dashboard-container">
-  
+
   <div class="page-header">
-    <h1>Tableau de bord</h1>
-    <p>Vue d'ensemble de la plateforme</p>
+    <h1 class="gradient-text">Tableau de bord</h1>
+    <p>Vue d'ensemble &mdash; Plateforme RH Interne</p>
   </div>
 
   <!-- Loading skeleton -->
@@ -12,44 +12,56 @@
 
   <div *ngIf="!isLoading && stats" class="dashboard-content">
 
-    <!-- KPI Cards Row -->
+    <!-- KPI Cards -->
     <div class="kpi-grid">
-      <div class="kpi-card kpi-blue">
+      <div class="kpi-card kpi-violet">
+        <div class="kpi-glow"></div>
         <div class="kpi-icon">👥</div>
         <div class="kpi-value">{{ stats.totalCollaborateurs }}</div>
         <div class="kpi-label">Collaborateurs</div>
+        <div class="kpi-bar" style="width:75%"></div>
       </div>
-      <div class="kpi-card kpi-green">
+      <div class="kpi-card kpi-cyan">
+        <div class="kpi-glow"></div>
         <div class="kpi-icon">⭐</div>
         <div class="kpi-value">{{ stats.totalCompetences }}</div>
         <div class="kpi-label">Compétences</div>
+        <div class="kpi-bar" style="width:60%"></div>
       </div>
-      <div class="kpi-card kpi-orange">
+      <div class="kpi-card kpi-amber">
+        <div class="kpi-glow"></div>
         <div class="kpi-icon">🏢</div>
-        <div class="kpi-value">
+        <div class="kpi-value kpi-value--sm">
           {{ (stats.repartitionParDepartement | keyvalue | slice:0:1)?.[0]?.key || 'N/A' }}
         </div>
-        <div class="kpi-label">Département principal</div>
+        <div class="kpi-label">Dép. principal</div>
+        <div class="kpi-bar" style="width:88%"></div>
       </div>
-      <div class="kpi-card kpi-purple">
+      <div class="kpi-card kpi-green">
+        <div class="kpi-glow"></div>
         <div class="kpi-icon">📈</div>
-        <div class="kpi-value">
-          {{ stats.repartitionNiveaux['EXPERT'] || 0 }}
-        </div>
+        <div class="kpi-value">{{ stats.repartitionNiveaux['EXPERT'] || 0 }}</div>
         <div class="kpi-label">Experts</div>
+        <div class="kpi-bar" style="width:40%"></div>
       </div>
     </div>
 
     <!-- Charts Row -->
     <div class="charts-grid">
-      <div class="chart-card">
-        <h3>Top 5 Compétences</h3>
+      <div class="chart-card glass-card">
+        <div class="chart-card-header">
+          <h3>Top 5 Compétences</h3>
+          <span class="badge-cyan">Popularité</span>
+        </div>
         <div class="chart-wrapper">
           <canvas id="barChart"></canvas>
         </div>
       </div>
-      <div class="chart-card">
-        <h3>Répartition des Niveaux</h3>
+      <div class="chart-card glass-card">
+        <div class="chart-card-header">
+          <h3>Répartition des Niveaux</h3>
+          <span class="badge-violet">Distribution</span>
+        </div>
         <div class="chart-wrapper">
           <canvas id="doughnutChart"></canvas>
         </div>
@@ -58,21 +70,21 @@
 
     <!-- Second Charts Row -->
     <div class="charts-row stats-grid">
-      
-      <!-- Average Skill Level (Horizontal Bar) -->
-      <div class="chart-card">
-        <div class="card-header">
-          <h3>Top 10 Niveaux Moyens</h3>
-          <span class="info-badge">Score 1-4</span>
+      <div class="chart-card glass-card">
+        <div class="chart-card-header">
+          <h3>Niveaux Moyens par Compétence</h3>
+          <span class="info-badge badge-amber">Score 1–4</span>
         </div>
         <div class="chart-wrapper">
           <canvas id="avgLevelChart"></canvas>
         </div>
       </div>
 
-      <!-- Cross Distribution Table -->
-      <div class="chart-card">
-        <h3>Distribution Département / Catégorie</h3>
+      <div class="chart-card glass-card">
+        <div class="chart-card-header">
+          <h3>Distribution Dép. / Catégorie</h3>
+          <span class="badge-green">Mapping</span>
+        </div>
         <div class="table-scroll">
           <table class="distribution-table">
             <thead>
@@ -96,13 +108,97 @@
           </table>
         </div>
       </div>
-
     </div>
 
-    <!-- Recent Actions & Collabs -->
+    <!-- Bottom Row: Interactive Terminal CLI -->
     <div class="bottom-row">
-      <!-- Recent Collaborators -->
-      <div class="list-card recent-collabs">
+
+      <!-- ════════════════════════════════════════
+           EPIC 1 – Interactive Terminal CLI
+           ════════════════════════════════════════ -->
+      <div class="terminal-card glass-card" (click)="focusInput()">
+
+        <!-- Title bar -->
+        <div class="terminal-titlebar">
+          <div class="terminal-dots">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+          </div>
+          <span class="terminal-title">
+            mao&#64;conseil:~# &mdash;
+            <span class="term-mode" [class.paused]="isFeedPaused">
+              {{ isFeedPaused ? 'PAUSED' : 'LIVE' }}
+            </span>
+          </span>
+          <span class="terminal-status">
+            <span class="pulse-dot" [class.paused]="isFeedPaused"></span>
+            {{ isFeedPaused ? 'PAUSED' : 'LIVE' }}
+          </span>
+        </div>
+
+        <!-- Log area -->
+        <div class="terminal-body" #terminalBody>
+          <div
+            class="terminal-line"
+            *ngFor="let line of terminalLines"
+            [ngClass]="'line-' + line.kind"
+          >
+            <!-- Command echo: special prompt style -->
+            <ng-container *ngIf="line.kind === 'cmd'">
+              <span class="term-time">{{ line.time }}</span>
+              <span class="term-prompt-full">root&#64;mao-conseil:~#</span>
+              <span class="term-cmd-text">{{ line.text }}</span>
+            </ng-container>
+
+            <!-- All other line kinds -->
+            <ng-container *ngIf="line.kind !== 'cmd'">
+              <span class="term-time">{{ line.time }}</span>
+              <span class="term-prompt">&gt;</span>
+              <span class="term-tag" [ngClass]="line.tagClass">{{ line.tag }}</span>
+              <span class="term-text" [ngClass]="'kind-' + line.kind">{{ line.text }}</span>
+            </ng-container>
+          </div>
+
+          <!-- Blinking cursor (shown when no input focus) -->
+          <div class="terminal-cursor" *ngIf="!isFeedPaused"></div>
+        </div>
+
+        <!-- ── CLI Input Row ───────────────────────────────── -->
+        <div class="cli-row">
+          <span class="cli-prompt">root&#64;mao-conseil:~#</span>
+          <input
+            #terminalInput
+            class="cli-input"
+            type="text"
+            [(ngModel)]="cliValue"
+            (keydown)="onTerminalKeydown($event)"
+            (focus)="onInputFocus()"
+            (blur)="onInputBlur()"
+            autocomplete="off"
+            spellcheck="false"
+            placeholder="Tapez une commande... (help pour l'aide)"
+            aria-label="Terminal CLI input"
+          />
+        </div>
+
+        <!-- Quick command chips -->
+        <div class="cli-chips">
+          <span class="chip-label">Commandes rapides :</span>
+          <button class="cli-chip" (click)="cliValue='help';    focusInput()">help</button>
+          <button class="cli-chip" (click)="cliValue='clear';   focusInput()">clear</button>
+          <button class="cli-chip chip-cyan" (click)="cliValue='ping backend'; focusInput()">ping backend</button>
+          <button class="cli-chip chip-violet" (click)="cliValue='search ';   focusInput()">search…</button>
+          <button class="cli-chip" (click)="cliValue='stats';   focusInput()">stats</button>
+          <button class="cli-chip" (click)="cliValue='ls';      focusInput()">ls</button>
+          <button class="cli-chip chip-amber" (click)="cliValue='pause';  focusInput()">pause</button>
+          <button class="cli-chip chip-green" (click)="cliValue='resume'; focusInput()">resume</button>
+        </div>
+
+      </div>
+
+      <!-- Collaborateurs Récents (mini list) -->
+      <div class="list-card glass-card recent-collabs">
         <div class="card-header">
           <h3>Collaborateurs Récents</h3>
           <a routerLink="/manager/collaborateurs" class="btn-text">Tout voir →</a>
@@ -110,16 +206,19 @@
         <div class="collab-list">
           <div class="collab-item" *ngFor="let c of stats.collaborateursRecents">
             <div class="collab-avatar" [style.background-color]="getAvatarColor(c.nom)">
-              <img *ngIf="c.photoUrl" [src]="'/api/uploads/' + c.photoUrl">
+              <img *ngIf="c.photoUrl" [src]="'/api/uploads/' + c.photoUrl" alt="">
               <span *ngIf="!c.photoUrl">{{ c.prenom[0] }}{{ c.nom[0] }}</span>
             </div>
             <div class="collab-info">
               <span class="collab-name">{{ c.prenom }} {{ c.nom }}</span>
               <span class="collab-poste">{{ c.poste }}</span>
             </div>
+            <div class="collab-dot"></div>
           </div>
         </div>
       </div>
+
     </div>
+
   </div>
 </div>

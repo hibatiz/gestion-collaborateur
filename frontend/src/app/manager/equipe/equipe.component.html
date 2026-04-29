@@ -1,66 +1,126 @@
 <div class="equipe-page">
 
   <div class="page-header">
-    <h1>Constitution d'Équipe</h1>
-    <p>Sélectionnez des collaborateurs et vérifiez la couverture des compétences</p>
+    <h1 class="gradient-text">Constitution d'Équipe</h1>
+    <p>Sélectionnez des membres et activez le <span class="badge-violet">Smart Match</span> pour l'équipe optimale</p>
   </div>
 
   <div class="equipe-layout">
 
-    <!-- LEFT PANEL — Builder -->
-    <div class="builder-panel">
+    <!-- ═══════════════════════════════════════
+         LEFT PANEL — Builder
+         ═══════════════════════════════════════ -->
+    <div class="builder-panel glass-card">
 
       <!-- Project Name -->
       <div class="form-section">
-        <label class="section-label">📁 Nom du projet *</label>
+        <label class="section-label">
+          <span class="label-icon">📁</span>
+          Nom du projet <span class="required">*</span>
+        </label>
         <input [(ngModel)]="projetNom" type="text"
                placeholder="Ex: Refonte plateforme web"
-               class="project-input">
+               class="cyber-input project-input">
       </div>
 
       <!-- Required Competences -->
       <div class="form-section">
-        <label class="section-label">⭐ Compétences requises</label>
+        <label class="section-label">
+          <span class="label-icon">⭐</span>
+          Compétences requises
+        </label>
         <div class="tag-input-box">
-          <span class="tag" *ngFor="let tag of competencesRequises">
+          <span class="comp-tag" *ngFor="let tag of competencesRequises">
             {{ tag }}
             <button type="button" (click)="removeCompetenceTag(tag)">×</button>
           </span>
           <input [(ngModel)]="competenceInput"
                  (keydown)="onCompetenceKeydown($event)"
-                 placeholder="Tapez et appuyez sur Entrée...">
+                 placeholder="Tapez + Entrée...">
         </div>
-        <p class="hint">Ces compétences seront utilisées pour détecter les lacunes.</p>
+        <p class="hint">Ces compétences alimentent le Smart Match et détectent les lacunes.</p>
+      </div>
+
+      <!-- ─────────────────────────────────────
+           FEATURE C – Smart Match CTA
+           ───────────────────────────────────── -->
+      <div class="smart-match-section" *ngIf="competencesRequises.length > 0">
+
+        <!-- Scan animation overlay -->
+        <div class="scan-overlay" [class.scanning]="isScanning" *ngIf="isScanning">
+          <div class="scan-line"></div>
+          <div class="scan-label">
+            <span class="scan-spinner"></span>
+            <span>Analyse des profils en cours<span class="dots-anim">...</span></span>
+          </div>
+        </div>
+
+        <button class="btn-smart-match" (click)="smartMatch()"
+                [disabled]="isScanning" [class.scanning]="isScanning">
+          <span class="btn-scan-bar"></span>
+          <svg viewBox="0 0 20 20" fill="currentColor" class="sm-icon">
+            <path d="M9 4a5 5 0 100 10A5 5 0 009 4zM2 9a7 7 0 1112.452 4.391l3.328 3.329a1 1 0 11-1.414 1.414l-3.329-3.328A7 7 0 012 9z"/>
+          </svg>
+          <span *ngIf="!isScanning">⚡ Générer l'équipe optimale</span>
+          <span *ngIf="isScanning">Scan en cours...</span>
+        </button>
+
+        <!-- Smart Match Results -->
+        <div class="smart-results" *ngIf="showSmartResults && smartMatchResults.length > 0">
+          <div class="smart-results-header">
+            <span class="badge-green">{{ smartMatchResults.length }} profils optimaux détectés</span>
+            <span class="hint-sm">✓ auto-sélectionnés</span>
+          </div>
+          <div class="smart-collab" *ngFor="let c of smartMatchResults">
+            <div class="mini-avatar-sm" [style.background]="getAvatarColor(c.nom)">
+              {{ c.prenom[0] }}{{ c.nom[0] }}
+            </div>
+            <div class="smart-info">
+              <span class="smart-name">{{ c.prenom }} {{ c.nom }}</span>
+              <span class="smart-poste">{{ c.poste }}</span>
+            </div>
+            <div class="smart-score">
+              <div class="score-bar">
+                <div class="score-fill"
+                  [style.width.%]="(getMatchScore(c) / competencesRequises.length) * 100">
+                </div>
+              </div>
+              <span class="score-label">{{ getMatchScore(c) }}/{{ competencesRequises.length }}</span>
+            </div>
+          </div>
+          <p *ngIf="smartMatchResults.length === 0" class="no-match">
+            Aucun profil correspondant aux compétences requises.
+          </p>
+        </div>
       </div>
 
       <!-- Collaborateur Multi-Select -->
       <div class="form-section">
         <label class="section-label">
-          👥 Sélectionner les membres 
-          <span class="selected-count" *ngIf="selectedIds.size > 0">
-            ({{ selectedIds.size }} sélectionné(s))
-          </span>
+          <span class="label-icon">👥</span>
+          Membres de l'équipe
+          <span class="selected-badge" *ngIf="selectedIds.size > 0">{{ selectedIds.size }}</span>
         </label>
         <div class="search-box">
           <input [(ngModel)]="searchText" (input)="onSearch()"
-                 placeholder="Rechercher un collaborateur..."
-                 class="search-input">
+                 placeholder="Rechercher..."
+                 class="cyber-input search-input">
         </div>
 
         <div *ngIf="isLoading" class="loading-collabs">
-          Chargement...
+          <div class="cyber-spinner-sm"></div>
         </div>
 
         <div class="collabs-list" *ngIf="!isLoading">
           <div class="collab-select-row"
                *ngFor="let c of filteredCollabs"
                [class.selected]="isSelected(c.id)"
+               [class.smart-highlighted]="showSmartResults && smartMatchResults.includes(c)"
                (click)="toggleSelect(c.id)">
             <div class="checkbox-circle" [class.checked]="isSelected(c.id)">
               <span *ngIf="isSelected(c.id)">✓</span>
             </div>
-            <div class="mini-avatar-sm"
-                 [style.background]="getAvatarColor(c.nom)">
+            <div class="mini-avatar-sm" [style.background]="getAvatarColor(c.nom)">
               {{ c.prenom[0] }}{{ c.nom[0] }}
             </div>
             <div class="collab-select-info">
@@ -68,11 +128,9 @@
               <div class="select-poste">{{ c.poste }}</div>
             </div>
             <div class="select-badges">
-              <span class="mini-badge" 
-                    *ngFor="let comp of c.topCompetences">
-                {{ comp }}
-              </span>
+              <span class="mini-badge" *ngFor="let comp of c.topCompetences">{{ comp }}</span>
             </div>
+            <span class="smart-star" *ngIf="showSmartResults && smartMatchResults.includes(c)">⚡</span>
           </div>
 
           <div *ngIf="filteredCollabs.length === 0" class="no-results">
@@ -81,58 +139,62 @@
         </div>
       </div>
 
-      <!-- Submit Button -->
-      <button class="btn-constituer"
+      <!-- Submit -->
+      <button class="btn-constituer btn-neon"
               (click)="constituerEquipe()"
-              [disabled]="!projetNom.trim() || 
-                          selectedIds.size === 0 || isSubmitting">
+              [disabled]="!projetNom.trim() || selectedIds.size === 0 || isSubmitting">
         <span *ngIf="!isSubmitting">🏗️ Constituer l'équipe</span>
-        <span *ngIf="isSubmitting">⏳ Constitution en cours...</span>
+        <span *ngIf="isSubmitting">
+          <span class="spinner-ring-sm"></span> Constitution en cours...
+        </span>
       </button>
-
     </div>
 
-    <!-- RIGHT PANEL — Result -->
-    <div class="result-panel">
+    <!-- ═══════════════════════════════════════
+         RIGHT PANEL — Result
+         ═══════════════════════════════════════ -->
+    <div class="result-panel glass-card">
 
-      <!-- Empty state -->
       <div *ngIf="!result" class="result-empty">
-        <div class="empty-illustration">🏗️</div>
+        <div class="empty-illustration">
+          <svg viewBox="0 0 80 80" fill="none">
+            <circle cx="40" cy="40" r="38" stroke="rgba(129,140,248,0.2)" stroke-width="2" stroke-dasharray="6 4"/>
+            <circle cx="40" cy="40" r="22" stroke="rgba(56,189,248,0.15)" stroke-width="1.5"/>
+            <text x="40" y="47" text-anchor="middle" fill="#475569" font-size="20">⚡</text>
+          </svg>
+        </div>
         <h3>Votre équipe apparaîtra ici</h3>
-        <p>Remplissez le formulaire et cliquez sur 
-           "Constituer l'équipe"</p>
+        <p>Définissez un projet, sélectionnez des membres, et cliquez sur <em>Constituer l'équipe</em>.</p>
+        <p class="hint-smart" *ngIf="competencesRequises.length > 0">
+          💡 Ou utilisez <strong>Générer l'équipe optimale</strong> pour le Smart Match automatique.
+        </p>
       </div>
 
-      <!-- Result -->
       <div *ngIf="result" class="result-content">
 
         <div class="result-header">
-          <h2>{{ result.projetNom }}</h2>
-          <button class="btn-reset" (click)="reset()">
-            🔄 Nouvelle équipe
-          </button>
+          <div>
+            <div class="result-project-label">Projet</div>
+            <h2>{{ result.projetNom }}</h2>
+          </div>
+          <button class="btn-reset" (click)="reset()">🔄 Nouvelle équipe</button>
         </div>
 
         <!-- Members -->
         <div class="result-section">
           <h3 class="result-section-title">
-            👥 Membres ({{ result.membres.length }})
+            👥 Membres <span class="badge-cyan">{{ result.membres.length }}</span>
           </h3>
           <div class="membres-grid">
-            <div class="membre-card" 
-                 *ngFor="let m of result.membres">
-              <div class="membre-avatar"
-                   [style.background]="getAvatarColor(m.nom)">
+            <div class="membre-card glass-elevated" *ngFor="let m of result.membres">
+              <div class="membre-avatar" [style.background]="getAvatarColor(m.nom)">
                 {{ m.prenom[0] }}{{ m.nom[0] }}
               </div>
               <div class="membre-info">
-                <div class="membre-name">
-                  {{ m.prenom }} {{ m.nom }}
-                </div>
+                <div class="membre-name">{{ m.prenom }} {{ m.nom }}</div>
                 <div class="membre-poste">{{ m.poste }}</div>
                 <div class="membre-competences">
-                  <span *ngFor="let c of m.topCompetences" 
-                        class="mini-badge">{{ c }}</span>
+                  <span *ngFor="let c of m.topCompetences" class="mini-badge">{{ c }}</span>
                 </div>
               </div>
             </div>
@@ -142,45 +204,33 @@
         <!-- Covered competences -->
         <div class="result-section">
           <h3 class="result-section-title">
-            ✅ Compétences couvertes 
-            ({{ result.competencesCouvertes.length }})
+            ✅ Compétences couvertes
+            <span class="badge-green">{{ result.competencesCouvertes.length }}</span>
           </h3>
           <div class="tags-wrap">
-            <span class="tag-covered" 
-                  *ngFor="let c of result.competencesCouvertes">
-              {{ c }}
-            </span>
+            <span class="tag-covered" *ngFor="let c of result.competencesCouvertes">{{ c }}</span>
           </div>
         </div>
 
-        <!-- Missing competences -->
+        <!-- Missing -->
         <div class="result-section" *ngIf="result.hasGap">
           <div class="gap-warning">
-            ⚠️ Compétences manquantes 
-            ({{ result.competencesManquantes.length }})
+            ⚠️ Lacunes détectées
+            <span class="badge-amber">{{ result.competencesManquantes.length }}</span>
           </div>
           <div class="tags-wrap">
-            <span class="tag-missing"
-                  *ngFor="let c of result.competencesManquantes">
-              {{ c }}
-            </span>
+            <span class="tag-missing" *ngFor="let c of result.competencesManquantes">{{ c }}</span>
           </div>
-          <p class="gap-message">
-            Ces compétences requises ne sont pas couvertes 
-            par l'équipe constituée.
-          </p>
+          <p class="gap-message">Ces compétences requises ne sont pas couvertes par l'équipe.</p>
         </div>
 
         <!-- All good -->
-        <div class="result-section" 
-             *ngIf="!result.hasGap && 
-                    result.competencesManquantes.length === 0 &&
-                    competencesRequises.length > 0">
+        <div class="result-section"
+             *ngIf="!result.hasGap && result.competencesManquantes.length === 0 && competencesRequises.length > 0">
           <div class="gap-ok">
             ✅ Toutes les compétences requises sont couvertes !
           </div>
         </div>
-
       </div>
     </div>
 

@@ -1,24 +1,42 @@
-<nav class="navbar">
+<!-- Dark Glassmorphism Navbar (aligned with manager-layout) -->
+<div class="collab-layout">
+  <nav class="top-nav">
+
+    <!-- Brand -->
     <div class="nav-brand">
-        <img src="assets/logo-mao.png" alt="MAO Conseils" class="brand-logo"/>
-        <span class="brand-text">Mao Conseils - Gestion Collaborateurs</span>
+      <img src="assets/logo-mao.png" alt="MAO Conseil" class="brand-logo"/>
+      <span class="brand-text">MAO Conseil &mdash; <strong>Espace Collaborateur</strong></span>
     </div>
-    
+
+    <!-- Nav links -->
     <div class="nav-links">
-        <a routerLink="/collab/dashboard" routerLinkActive="active">Tableau de bord</a>
-        <a routerLink="/collab/profil" routerLinkActive="active">Mon Profil</a>
-        <a routerLink="/collab/competences" routerLinkActive="active">Mes Compétences</a>
-        <a routerLink="/collab/projets" routerLinkActive="active">Mes Projets</a>
-        <a routerLink="/collab/cv" routerLinkActive="active">Mon CV</a>
+      <a routerLink="/collab/dashboard" routerLinkActive="active">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a routerLink="/collab/profil" routerLinkActive="active">
+        <span class="nav-icon">👤</span> Mon Profil
+      </a>
+      <a routerLink="/collab/competences" routerLinkActive="active">
+        <span class="nav-icon">⭐</span> Mes Compétences
+      </a>
+      <a routerLink="/collab/projets" routerLinkActive="active">
+        <span class="nav-icon">🗂️</span> Mes Projets
+      </a>
+      <a routerLink="/collab/cv" routerLinkActive="active">
+        <span class="nav-icon">📄</span> Mon CV
+      </a>
     </div>
 
+    <!-- User section -->
     <div class="nav-user">
-        <div class="avatar">{{ getUserIdentifier() | slice:0:1 | uppercase }}</div>
-        <span class="username">{{ getUserIdentifier() }}</span>
-        <button class="logout-btn" (click)="logout()">Déconnexion</button>
+      <div class="user-avatar">{{ getUserIdentifier() | slice:0:1 | uppercase }}</div>
+      <span class="username">{{ getUserIdentifier() }}</span>
+      <button class="btn-logout" (click)="logout()">Déconnexion</button>
     </div>
-</nav>
 
-<div class="content-container">
+  </nav>
+
+  <main class="main-content">
     <router-outlet></router-outlet>
+  </main>
 </div>

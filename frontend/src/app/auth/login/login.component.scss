@@ -1,212 +1,742 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap');
+// ═══════════════════════════════════════════════════════════
+// LOGIN COMPONENT SCSS – V2  (Web3 / Fintech / Dev Theme)
+// ═══════════════════════════════════════════════════════════
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Fira+Code:wght@400;500&display=swap');
 
+// ── Design Tokens ─────────────────────────────────────────
+$bg-void:        #06080f;
+$bg-deep:        #090d1a;
+$bg-panel:       #0d1224;
+$accent-violet:  #818cf8;
+$accent-cyan:    #38bdf8;
+$accent-green:   #34d399;
+$glass-bg:       rgba(255, 255, 255, 0.042);
+$glass-border:   rgba(255, 255, 255, 0.1);
+$glass-shadow:   rgba(0, 0, 0, 0.6);
+$neon-violet:    rgba(129, 140, 248, 0.55);
+$neon-cyan:      rgba(56, 189, 248, 0.45);
+$text-primary:   #f1f5f9;
+$text-secondary: #94a3b8;
+$text-muted:     #475569;
+$error-color:    #f87171;
+
+// ── Mixins ────────────────────────────────────────────────
+@mixin glass-surface($alpha: 0.042, $blur: 24px) {
+  background: rgba(255, 255, 255, $alpha);
+  backdrop-filter: blur($blur) saturate(180%);
+  -webkit-backdrop-filter: blur($blur) saturate(180%);
+  border: 1px solid $glass-border;
+}
+
+// ═══════════════════════════════════════════════════════════
+// HOST & GLOBAL RESET
+// ═══════════════════════════════════════════════════════════
 :host {
   display: block;
-  min-height: 100vh;
   width: 100vw;
-  background-color: #F0F4F8;
-  background-image: radial-gradient(#d1dcf0 1px, transparent 1px);
-  background-size: 20px 20px;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+  background-color: $bg-void;
+  * { box-sizing: border-box; }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PAGE LAYOUT – Split-screen grid
+// ═══════════════════════════════════════════════════════════
+.login-page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  width: 100%;
+  overflow: hidden;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+    grid-template-rows: 280px 1fr;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// LEFT PANEL – 3D scene
+// ═══════════════════════════════════════════════════════════
+.scene-panel {
+  position: relative;
+  // ✦ V2 tech/cyber background: radial gradient + dot-grid pattern
+  background:
+    radial-gradient(circle at 30% 40%, rgba(129, 140, 248, 0.12) 0%, transparent 55%),
+    radial-gradient(circle at 75% 70%, rgba(56, 189, 248, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 40%, #0f1a3a 0%, $bg-void 70%);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 48px;
+  z-index: 1;
+
+  // ✦ V2 – dot-connection pattern overlay (tech / cyber theme)
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(circle, rgba(129, 140, 248, 0.18) 1px, transparent 1px),
+      radial-gradient(circle, rgba(56, 189, 248, 0.1) 1px, transparent 1px);
+    background-size: 36px 36px, 72px 72px;
+    background-position: 0 0, 18px 18px;
+    pointer-events: none;
+    z-index: 1;
+    // Fade out toward edges so it doesn't overpower the 3D
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    animation: dotGridShift 30s linear infinite;
+  }
+
+  // Right glowing divider
+  &::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 10%;
+    bottom: 10%;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, $accent-violet 40%, $accent-cyan 60%, transparent);
+    opacity: 0.4;
+    z-index: 2;
+  }
+}
+
+@keyframes dotGridShift {
+  from { background-position: 0 0, 18px 18px; }
+  to   { background-position: 36px 36px, 54px 54px; }
+}
+
+// Three.js canvas
+.three-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+// ✦ Company logo – perfectly centred over 3D animation
+.logo-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  pointer-events: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'DM Sans', sans-serif;
-  box-sizing: border-box;
-}
 
-.login-container {
-  width: 100%;
-  padding: 20px;
-  display: flex;
-  justify-content: center;
-  animation: fadeIn 0.6s ease-out forwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  .company-logo {
+    // ✦ V3 – Logo agrandi
+    width: clamp(180px, 22vw, 250px);
+    height: auto;
+    filter:
+      drop-shadow(0 0 20px rgba(129, 140, 248, 0.6))
+      drop-shadow(0 0 48px rgba(56, 189, 248, 0.3));
+    animation: logoPulse 4s ease-in-out infinite;
+    user-select: none;
   }
 }
 
-.login-card {
-  width: 100%;
-  max-width: 420px;
-  background-color: #FFFFFF;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(27, 42, 74, 0.08);
-  padding: 40px;
-}
-
-.card-header {
-  text-align: center;
-  margin-bottom: 32px;
-
-  .title {
-    font-family: 'Poppins', sans-serif;
-    color: #1B2A4A;
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0 0 8px 0;
+@keyframes logoPulse {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 18px rgba(129, 140, 248, 0.55))
+      drop-shadow(0 0 40px rgba(56, 189, 248, 0.25));
   }
-
-  .subtitle {
-    color: #64748B;
-    font-size: 14px;
-    margin: 0;
+  50% {
+    filter:
+      drop-shadow(0 0 28px rgba(129, 140, 248, 0.85))
+      drop-shadow(0 0 60px rgba(56, 189, 248, 0.4));
   }
 }
 
-.error-alert {
-  background-color: #FEE2E2;
-  color: #B91C1C;
-  padding: 12px 16px;
-  border-radius: 8px;
+// Ambient orbs
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+
+  &--1 {
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(129,140,248,0.22), transparent 70%);
+    top: -80px; left: -80px;
+    animation: orbFloat 12s ease-in-out infinite;
+  }
+  &--2 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(56,189,248,0.18), transparent 70%);
+    bottom: 60px; right: -60px;
+    animation: orbFloat 9s ease-in-out infinite reverse;
+  }
+  &--3 {
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(52,211,153,0.12), transparent 70%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation: orbPulse 6s ease-in-out infinite;
+  }
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0); }
+  33%       { transform: translate(30px, -20px); }
+  66%       { transform: translate(-20px, 25px); }
+}
+@keyframes orbPulse {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.18); }
+}
+
+// Brand watermark
+.brand-watermark {
+  position: relative;
+  z-index: 3;
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 24px;
-  font-size: 14px;
-  font-weight: 500;
+  margin-bottom: auto;
 
-  .icon {
-    width: 20px;
-    height: 20px;
+  .brand-icon { width: 40px; height: 40px; svg { width: 100%; height: 100%; } }
+
+  .brand-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: $text-secondary;
+    letter-spacing: 0.02em;
+    strong { color: $text-primary; font-weight: 700; }
   }
 }
 
-.form-group {
-  margin-bottom: 24px;
+// Tagline
+.scene-tagline {
+  position: relative;
+  z-index: 3;
+  margin-top: 24px;
 
-  label {
-    display: block;
-    color: #1B2A4A;
+  h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(24px, 2.8vw, 34px);
+    font-weight: 700;
+    color: $text-primary;
+    line-height: 1.3;
+    margin: 0 0 12px;
+  }
+  p {
     font-size: 14px;
-    font-weight: 500;
-    margin-bottom: 8px;
-  }
-
-  .input-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-
-    input {
-      width: 100%;
-      padding: 12px 16px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      color: #334155;
-      background-color: #F8FAFC;
-      border: 1px solid #E2E8F0;
-      border-radius: 8px;
-      transition: all 0.2s ease-in-out;
-      outline: none;
-
-      &::placeholder {
-        color: #94A3B8;
-      }
-
-      &:focus {
-        border-color: #2E7CF6;
-        box-shadow: 0 0 0 3px rgba(46, 124, 246, 0.15);
-        background-color: #FFFFFF;
-      }
-
-      &.is-invalid {
-        border-color: #EF4444;
-        &:focus {
-          box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
-        }
-      }
-    }
-  }
-
-  .toggle-password {
-    position: absolute;
-    right: 12px;
-    background: none;
-    border: none;
-    color: #94A3B8;
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: color 0.2s;
-
-    &:hover {
-      color: #64748B;
-    }
-
-    svg {
-      width: 20px;
-      height: 20px;
-    }
-  }
-
-  .validation-error {
-    margin-top: 6px;
-    color: #EF4444;
-    font-size: 12px;
-    font-weight: 500;
+    color: $text-secondary;
+    margin: 0;
+    max-width: 300px;
+    line-height: 1.65;
   }
 }
 
-.submit-btn {
-  width: 100%;
-  padding: 14px;
-  background-color: #2E7CF6;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 8px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
+.gradient-text {
+  background: linear-gradient(135deg, $accent-violet, $accent-cyan);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// ✦ V2 stat badges – monospace Fira Code font
+.stat-badge {
+  position: absolute;
+  right: 32px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: 100px;
+  @include glass-surface(0.08, 16px);
+  // ✦ Monospace font for the "dev / network" identity
+  font-family: 'Fira Code', 'Roboto Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: $text-secondary;
+  letter-spacing: 0.04em;
+
+  &--top {
+    top: 32px;
+    animation: badgeBob 4s ease-in-out infinite;
+  }
+  &--bottom {
+    bottom: 180px;
+    animation: badgeBob 5s ease-in-out 1s infinite;
+    svg { width: 16px; height: 16px; }
+  }
+
+  .stat-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: $accent-green;
+    box-shadow: 0 0 6px $accent-green;
+    animation: dotPulse 2s ease-in-out infinite;
+  }
+}
+
+@keyframes badgeBob {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}
+@keyframes dotPulse {
+  0%, 100% { box-shadow: 0 0 4px $accent-green; }
+  50%       { box-shadow: 0 0 10px $accent-green, 0 0 18px rgba(52,211,153,0.4); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// RIGHT PANEL – Form
+// ═══════════════════════════════════════════════════════════
+.form-panel {
+  position: relative;
+  background: $bg-deep;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
+  padding: 40px 24px;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 50%, rgba(129,140,248,0.07) 0%, transparent 65%),
+      radial-gradient(ellipse at 80% 10%, rgba(56,189,248,0.05) 0%, transparent 55%);
+    pointer-events: none;
+  }
+}
+
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
+}
+
+// ═══════════════════════════════════════════════════════════
+// GLASS CARD
+// ═══════════════════════════════════════════════════════════
+.glass-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+  @include glass-surface(0.055, 28px);
+  border-radius: 24px;
+  padding: 40px 36px 36px;
+  box-shadow:
+    0 8px 32px $glass-shadow,
+    0 0 0 1px $glass-border,
+    inset 0 1px 0 rgba(255,255,255,0.1);
+  animation: cardEntrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 24px; right: 24px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+    border-radius: 1px;
+  }
+}
+
+@keyframes cardEntrance {
+  from { opacity: 0; transform: translateY(28px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)     scale(1); }
+}
+
+// Card header
+.card-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.logo-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 14px;
+  border-radius: 100px;
+  @include glass-surface(0.1, 12px);
+  font-family: 'Fira Code', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: $accent-cyan;
+  margin-bottom: 16px;
+
+  .logo-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: $accent-cyan;
+    animation: dotPulse 2s ease-in-out infinite;
+  }
+}
+.card-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+.card-subtitle {
+  font-size: 14px;
+  color: $text-muted;
+  margin: 0;
+}
+
+// ═══════════════════════════════════════════════════════════
+// ✦ ERROR ALERT with @keyframes shake
+// ═══════════════════════════════════════════════════════════
+@keyframes shake {
+  0%          { transform: translateX(0); }
+  12%         { transform: translateX(-7px); }
+  25%         { transform: translateX(7px); }
+  37%         { transform: translateX(-6px); }
+  50%         { transform: translateX(6px); }
+  62%         { transform: translateX(-4px); }
+  75%         { transform: translateX(4px); }
+  87%         { transform: translateX(-2px); }
+  100%        { transform: translateX(0); }
+}
+
+.error-alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(248, 113, 113, 0.28);
+  color: $error-color;
+  font-size: 13.5px;
+  font-weight: 500;
+  margin-bottom: 22px;
+
+  // The shake fires once every time the element (re)appears
+  &.shake {
+    animation: shake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+
+  .error-icon {
+    flex-shrink: 0;
+    width: 18px; height: 18px;
+    svg { width: 100%; height: 100%; }
+  }
+}
+
+// ── Form ──────────────────────────────────────────────────
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: $text-secondary;
+
+    .label-icon {
+      width: 14px; height: 14px;
+      color: $text-muted;
+    }
+  }
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  input {
+    width: 100%;
+    padding: 13px 48px 13px 16px;
+    background: rgba(255,255,255,0.045);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: $text-primary;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+
+    &::placeholder { color: $text-muted; font-weight: 300; }
+
+    &:focus {
+      border-color: $accent-violet;
+      background: rgba(129,140,248,0.06);
+      box-shadow:
+        0 0 0 3px rgba(129,140,248,0.15),
+        0 0 16px rgba(129,140,248,0.1);
+
+      & ~ .input-glow { opacity: 1; transform: scaleX(1); }
+    }
+
+    &.is-invalid {
+      border-color: rgba($error-color, 0.5);
+      background: rgba($error-color, 0.04);
+      box-shadow: 0 0 0 3px rgba($error-color, 0.12);
+    }
+
+    &:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 100px #111827 inset !important;
+      -webkit-text-fill-color: $text-primary !important;
+    }
+  }
+
+  .input-glow {
+    position: absolute;
+    bottom: 0; left: 16px; right: 16px;
+    height: 2px;
+    background: linear-gradient(90deg, $accent-violet, $accent-cyan);
+    border-radius: 0 0 2px 2px;
+    opacity: 0;
+    transform: scaleX(0);
+    transition: opacity 0.3s, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+  }
+}
+
+.toggle-password {
+  position: absolute;
+  right: 14px;
+  background: none;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: $text-muted;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s;
+  z-index: 1;
+
+  svg { width: 18px; height: 18px; pointer-events: none; }
+
+  &:hover {
+    color: $text-secondary;
+    background: rgba(255,255,255,0.06);
+  }
+}
+
+.validation-error {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: $error-color;
+  font-size: 12px;
+  font-weight: 500;
+  animation: errorSlide 0.2s ease-out;
+
+  svg { width: 8px; height: 8px; flex-shrink: 0; }
+}
+
+@keyframes errorSlide {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ✦ Forgot-password info hint (appears on click)
+.forgot-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: -6px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(56, 189, 248, 0.07);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  color: $accent-cyan;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.55;
+  animation: errorSlide 0.22s ease-out;
+
+  svg {
+    flex-shrink: 0;
+    width: 15px;
+    height: 15px;
+    margin-top: 1px;
+  }
+
+  span { color: $text-secondary; }
+}
+
+.forgot-password-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -4px;
+}
+
+.forgot-password-link {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: $text-muted;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  transition: color 0.2s ease, opacity 0.2s ease;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: $accent-cyan;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.25s ease;
+  }
+
+  &:hover {
+    color: $accent-cyan;
+    opacity: 1;
+
+    &::after { transform: scaleX(1); transform-origin: left; }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// SUBMIT BUTTON
+// ═══════════════════════════════════════════════════════════
+.submit-btn {
+  position: relative;
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: linear-gradient(135deg, $accent-violet 0%, #6366f1 50%, $accent-cyan 100%);
+  background-size: 200% 200%;
+  background-position: 0% 50%;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.3s ease,
+    background-position 0.5s ease,
+    opacity 0.2s ease;
+
+  .btn-glow {
+    position: absolute;
+    inset: -2px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, $accent-violet, $accent-cyan);
+    opacity: 0;
+    filter: blur(12px);
+    transition: opacity 0.35s ease;
+    z-index: -1;
+  }
+
+  .btn-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 1;
+  }
+
+  .btn-icon { width: 18px; height: 18px; }
 
   &:hover:not(:disabled) {
-    background-color: #1d61cd;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(46, 124, 246, 0.25);
+    transform: translateY(-2px);
+    background-position: 100% 50%;
+    box-shadow:
+      0 6px 24px rgba(99,102,241,0.45),
+      0 0 40px rgba(56,189,248,0.2);
+
+    .btn-glow { opacity: 0.5; }
   }
 
   &:active:not(:disabled) {
-    transform: translateY(0);
-    box-shadow: none;
+    transform: translateY(1px) scale(0.985);
+    box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+    transition: transform 0.08s ease;
   }
 
   &:disabled {
-    background-color: #94A3B8;
+    opacity: 0.45;
     cursor: not-allowed;
   }
+
+  &.is-loading { cursor: wait; opacity: 0.8; }
 }
 
-.spinner {
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
+.btn-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner-ring {
+  display: block;
+  width: 22px; height: 22px;
+  border: 2.5px solid rgba(255,255,255,0.25);
+  border-top-color: #fff;
   border-radius: 50%;
-  border-top-color: #FFFFFF;
-  animation: spin 0.8s ease-in-out infinite;
+  animation: spinRing 0.75s linear infinite;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+@keyframes spinRing {
+  to { transform: rotate(360deg); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// RESPONSIVE
+// ═══════════════════════════════════════════════════════════
+@media (max-width: 900px) {
+  .scene-panel {
+    padding: 24px;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+
+    &::after { display: none; }
   }
+
+  .logo-overlay .company-logo { width: 70px; }
+  .brand-watermark { margin-bottom: 0; }
+  .scene-tagline { margin-top: 0; h2 { font-size: 18px; } p { display: none; } }
+  .stat-badge { display: none; }
+
+  .glass-card { padding: 28px 20px; }
+  .card-title { font-size: 24px; }
 }
 
-// Global reset just for this component view since it's the auth wrapper
-* {
-  box-sizing: border-box;
+@media (max-width: 480px) {
+  .form-panel { padding: 24px 16px; align-items: flex-start; }
+  .glass-card { border-radius: 18px; max-width: 100%; }
 }

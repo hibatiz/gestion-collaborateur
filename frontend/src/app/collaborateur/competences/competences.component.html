@@ -5,7 +5,7 @@
 <div class="competences-layout">
   
   <div class="competences-list">
-    <div *ngIf="competences.length === 0" class="empty-state card">
+    <div *ngIf="competences.length === 0" class="empty-state glass-card">
       <div class="icon">🚀</div>
       <h3>Aucune compétence</h3>
       <p>Ajoutez votre première compétence pour compléter votre profil !</p>
@@ -29,7 +29,7 @@
     </div>
   </div>
 
-  <div class="competences-form card">
+  <div class="competences-form glass-card">
     <div class="card-header">
       <h2>{{ isEditMode ? 'Modifier la compétence' : 'Ajouter une compétence' }}</h2>
     </div>

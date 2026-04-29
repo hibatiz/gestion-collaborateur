@@ -1,28 +1,36 @@
 <div class="manager-layout">
   <nav class="top-nav">
+
+    <!-- Brand -->
     <div class="nav-brand">
-      <img src="assets/logo-mao.png" alt="MAO Conseils" class="brand-logo"/>
-      <span class="brand-text">Mao Conseils - Gestion Collaborateurs</span>
+      <img src="assets/logo-mao.png" alt="MAO Conseil" class="brand-logo"/>
+      <span class="brand-text">MAO Conseil &mdash; <strong>Gestion Collaborateurs</strong></span>
     </div>
+
+    <!-- Nav links -->
     <div class="nav-links">
       <a routerLink="/manager/dashboard" routerLinkActive="active">
-        📊 Dashboard
+        <span class="nav-icon">📊</span> Dashboard
       </a>
       <a routerLink="/manager/collaborateurs" routerLinkActive="active">
-        👥 Collaborateurs
+        <span class="nav-icon">👥</span> Collaborateurs
       </a>
       <a routerLink="/manager/matrice" routerLinkActive="active">
-        📋 Matrice
+        <span class="nav-icon">🔗</span> Matrice
       </a>
       <a routerLink="/manager/equipe" routerLinkActive="active">
-        🏗️ Équipe
+        <span class="nav-icon">⚡</span> Smart Team
       </a>
     </div>
+
+    <!-- User -->
     <div class="nav-user">
       <span class="username">{{ username }}</span>
       <button class="btn-logout" (click)="logout()">Déconnexion</button>
     </div>
+
   </nav>
+
   <main class="main-content">
     <router-outlet></router-outlet>
   </main>
