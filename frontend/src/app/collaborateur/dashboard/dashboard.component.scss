@@ -1,3 +1,16 @@
+:host-context(html.light-theme) {
+  .hero-card, .evolution-card, .category-card, .glass-card, .card, mat-card {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #1a202c !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+  }
+  h2, h3, .mat-card-title, span, p {
+    color: #1a202c !important;
+  }
+}
+
 // ══════════════════════════════════════════════════════════════════════
 // COLLABORATEUR DASHBOARD — Dark Glassmorphism Theme
 // All white cards replaced with glass surfaces, text mapped to tokens.

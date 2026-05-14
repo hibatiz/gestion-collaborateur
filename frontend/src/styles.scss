@@ -62,6 +62,9 @@
   --radius-card:    12px;
   --radius-input:   8px;
   --radius-badge:   100px;
+
+  // Chart.js — lues par les configs JS des composants
+  --chart-legend-color: var(--text-secondary);
 }
 
 
@@ -82,12 +85,12 @@ html {
 // Le ThemeService ajoute/retire cette classe sur document.documentElement.
 // ════════════════════════════════════════════════════════════════════
 html.light-theme {
-  // ── Fonds — fond de page légèrement gris pour faire ressortir les cartes blanches
-  --bg-void:     #dde3ea;
-  --bg-deep:     #eef2f7;   // fond de page global
+  // ── Fonds — blanc pur (aucun gris de page)
+  --bg-void:     #ffffff;
+  --bg-deep:     #ffffff;
   --bg-surface:  #ffffff;
   --bg-elevated: #ffffff;
-  --bg-overlay:  rgba(238, 242, 247, 0.95);
+  --bg-overlay:  #ffffff;
 
   // ── Accents — légèrement plus saturés pour contraste sur fond clair
   --accent-violet: #6366f1;
@@ -96,13 +99,13 @@ html.light-theme {
   --accent-amber:  #d97706;
   --accent-rose:   #dc2626;
 
-  // ── Lueurs — atténuées sur fond clair
-  --glow-violet: rgba(99,  102, 241, 0.12);
-  --glow-cyan:   rgba(2,   132, 199, 0.12);
-  --glow-green:  rgba(5,   150, 105, 0.12);
+  // ── Lueurs — neutres (évite tout motif / teinte résiduelle sur fond clair)
+  --glow-violet: transparent;
+  --glow-cyan:   transparent;
+  --glow-green:  transparent;
 
-  // ── Texte — slate très foncé pour contraste maximal sur blanc
-  --text-primary:   #1e293b;   // slate-800 — titres, noms, valeurs
+  // ── Texte — noir profond pour contraste maximal sur blanc
+  --text-primary:   #1a202c;
   --text-secondary: #334155;   // slate-700 — labels, sous-titres
   --text-muted:     #64748b;   // slate-500 — métadonnées, hints
   --text-disabled:  #94a3b8;   // slate-400 — désactivés
@@ -110,7 +113,7 @@ html.light-theme {
   // ── Surfaces cartes — BLANC PUR, zéro transparence, zéro flou
   --glass-bg:       #ffffff;
   --glass-bg-hover: #ffffff;
-  --glass-border:   rgba(15, 23, 42, 0.08);
+  --glass-border:   #e2e8f0;
   --glass-shadow:   rgba(15, 23, 42, 0.06);
 
   // ── Ombre portée douce
@@ -122,9 +125,9 @@ html.light-theme {
   --primary-color: #6366f1;
   --accent-color:  #0284c7;
   --card-bg:       #ffffff;
-  --bg-color:      #eef2f7;
+  --bg-color:      #ffffff;
   --bg-elevated:   #ffffff;
-  --text-dark:     #1e293b;
+  --text-dark:     #1a202c;
   --text-light:    #334155;
 }
 
@@ -145,10 +148,11 @@ body {
   background-attachment: fixed;
 }
 
-// En mode clair : fond uni propre, pas de dot-grid qui grise la page
+// En mode clair : fond blanc pur, aucun motif ni dégradé de page
 html.light-theme body {
-  background-image: none;
-  background-color: #eef2f7;
+  background-image: none !important;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
 }
 
 // ════════════════════════════════════════════════════════════════════
@@ -157,35 +161,58 @@ html.light-theme body {
 // ════════════════════════════════════════════════════════════════════
 html.light-theme {
 
+  // ── Aucun backdrop-filter en mode clair (évite le voile gris dû au blur)
+  *,
+  *::before,
+  *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  // ── Page shell — blanc pur (layouts + Material éventuel) ───────────
+  html,
+  body,
+  mat-sidenav-container,
+  .mat-drawer-container,
+  .mat-sidenav-container,
+  .mat-app-background,
+  app-root,
+  .main-container,
+  .content-wrapper,
+  .main-content,
+  .manager-layout,
+  .collab-layout {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+  }
+
   // ── Navbar ─────────────────────────────────────────────────────────
   .top-nav {
     background: #ffffff !important;
-    border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
-    box-shadow: 0 1px 0 rgba(99,102,241,0.08), 0 2px 8px rgba(0,0,0,0.05) !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    box-shadow: 0 1px 3px #eef2f7 !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
 
+    // Ligne d’accent : solide claire (pas de dégradé teinté)
     &::after {
-      background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(99,102,241,0.35) 30%,
-        rgba(2,132,199,0.35) 70%,
-        transparent 100%
-      ) !important;
+      background: #e2e8f0 !important;
     }
   }
 
-  // Liens de navigation
+  // Liens de navigation (fond blanc + contour léger au survol)
   .nav-links a {
     color: var(--text-muted) !important;
     &:hover {
-      background: rgba(15, 23, 42, 0.04) !important;
+      background: #ffffff !important;
+      box-shadow: inset 0 0 0 1px #e2e8f0 !important;
       color: var(--text-secondary) !important;
     }
     &.active {
       color: var(--accent-cyan) !important;
-      background: rgba(2, 132, 199, 0.07) !important;
+      background: #ffffff !important;
+      box-shadow: inset 0 0 0 1px #e2e8f0 !important;
     }
   }
 
@@ -198,30 +225,35 @@ html.light-theme {
   // Username pill — blanc pur
   .username {
     background: #ffffff !important;
-    border-color: rgba(15, 23, 42, 0.12) !important;
+    border-color: #e2e8f0 !important;
     color: var(--text-secondary) !important;
     &::before { color: var(--accent-green) !important; }
   }
 
-  // ── Cartes — BLANC PUR, sans flou ni transparence ──────────────────
-  .glass-card,
+  // ── Cartes — BLANC PUR (opacité 100 %), sans flou ni transparence ───
+  .glass-card:not(.terminal-card),
   .glass-panel,
   .glass-elevated,
-  .card {
+  .card,
+  mat-card,
+  .mat-mdc-card,
+  .mdc-card {
     background: #ffffff !important;
+    background-color: #ffffff !important;
+    opacity: 1 !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    border: 1px solid #e2e8f0 !important;
     box-shadow:
       0 4px 6px -1px rgba(0, 0, 0, 0.10),
       0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
 
-    // Texte à l'intérieur des cartes — noir/slate pour contraste maximal
-    color: #1e293b !important;
+    // Texte principal — contraste maximal
+    color: #1a202c !important;
 
-    h1, h2, h3, h4, h5, h6 { color: #1e293b !important; }
-    p, span, li, td, th     { color: #334155 !important; }
-    label                   { color: #334155 !important; }
+    h1, h2, h3, h4, h5, h6 { color: #1a202c !important; }
+    p, span, li, td, th     { color: #1a202c !important; }
+    label                   { color: #1a202c !important; }
 
     // Exceptions : les badges colorés gardent leur couleur d'accent
     [class*="badge"],
@@ -240,7 +272,7 @@ html.light-theme {
     background: #ffffff !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    border: 1px solid #e2e8f0 !important;
     box-shadow:
       0 4px 6px -1px rgba(0, 0, 0, 0.10),
       0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
@@ -251,8 +283,8 @@ html.light-theme {
   select,
   textarea {
     background: #ffffff !important;
-    border-color: rgba(15, 23, 42, 0.18) !important;
-    color: #1e293b !important;
+    border-color: #e2e8f0 !important;
+    color: #1a202c !important;
 
     &::placeholder { color: #94a3b8 !important; }
 
@@ -265,45 +297,108 @@ html.light-theme {
 
     option {
       background: #ffffff;
-      color: #1e293b;
+      color: #1a202c;
     }
+  }
+
+  // Champ CLI du terminal manager — hors du style « input blanc » global
+  .terminal-card .cli-input {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #f8fafc !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    &:focus {
+      background: transparent !important;
+      background-color: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    &::placeholder {
+      color: #64748b !important;
+    }
+  }
+
+  .terminal-card .chip-label {
+    color: #64748b !important;
+  }
+
+  .terminal-card .cli-chip {
+    color: #e2e8f0 !important;
+  }
+
+  // Angular Material — champs sur fond blanc (si @angular/material est ajouté)
+  mat-form-field,
+  .mat-mdc-form-field {
+    --mdc-filled-text-field-container-color: #ffffff;
+    --mdc-outlined-text-field-container-color: #ffffff;
+    --mat-form-field-filled-container-color: #ffffff;
+    --mat-form-field-state-layer-color: transparent;
+  }
+
+  .mat-mdc-text-field-wrapper {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+  }
+
+  .mat-mdc-form-field-focus-overlay {
+    background-color: transparent !important;
+  }
+
+  .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+    background-color: #ffffff !important;
+  }
+
+  .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading,
+  .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__notch,
+  .mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__trailing {
+    border-color: #e2e8f0 !important;
+  }
+
+  .mat-mdc-form-field.mat-focused .mdc-notched-outline .mdc-notched-outline__leading,
+  .mat-mdc-form-field.mat-focused .mdc-notched-outline .mdc-notched-outline__notch,
+  .mat-mdc-form-field.mat-focused .mdc-notched-outline .mdc-notched-outline__trailing {
+    border-color: var(--accent-cyan) !important;
   }
 
   // ── Tables — blanc pur, bordures très fines ──────────────────────────
   th {
     background: #ffffff !important;
-    color: #1e293b !important;
-    border-color: rgba(15, 23, 42, 0.08) !important;
+    color: #1a202c !important;
+    border-color: #e2e8f0 !important;
     font-weight: 600;
   }
 
   td {
-    color: #334155 !important;
-    border-color: rgba(15, 23, 42, 0.05) !important;
+    color: #1a202c !important;
+    border-color: #e2e8f0 !important;
     background: #ffffff !important;
   }
 
   tr:hover td {
-    background: #f8fafc !important;
+    background: #ffffff !important;
   }
 
   // ── Headings globaux en mode clair ───────────────────────────────────
   h1, h2, h3, h4, h5, h6 {
-    color: #1e293b;
+    color: #1a202c;
   }
 
-  // ── Scrollbar claire ─────────────────────────────────────────────────
-  ::-webkit-scrollbar-track { background: #f1f5f9; }
+  // ── Scrollbar claire — sans gris de piste ───────────────────────────
+  ::-webkit-scrollbar-track { background: #ffffff; }
   ::-webkit-scrollbar-thumb {
-    background: rgba(15, 23, 42, 0.15);
-    &:hover { background: rgba(15, 23, 42, 0.25); }
+    background: #e2e8f0;
+    &:hover { background: #cbd5e1; }
   }
 
   // ── Textes dans les cartes — dark sur fond clair ─────────────────────
-  .glass-card, .glass-panel, .glass-elevated, .card {
+  .glass-card:not(.terminal-card), .glass-panel, .glass-elevated, .card,
+  mat-card, .mat-mdc-card, .mdc-card {
     .collab-name, .select-name, .smart-name, .membre-name,
     .comp-name, .kpi-value, .projet-mini-nom,
-    h1, h2, h3, h4 { color: #1e293b !important; }
+    h1, h2, h3, h4 { color: #1a202c !important; }
 
     .collab-poste, .select-poste, .smart-poste, .membre-poste,
     .comp-cat, .kpi-label, .hint, .hint-sm,
@@ -565,9 +660,6 @@ td {
 // ── 6. Légendes de graphiques (Chart.js) ────────────────────────────
 // Chart.js écrit ses légendes en noir par défaut.
 // On injecte via une variable CSS lue par les config JS des composants.
-// Les composants doivent utiliser : color: getComputedStyle(document.documentElement).getPropertyValue('--chart-legend-color')
---chart-legend-color: var(--text-secondary);
-
 // Override canvas text si injecté inline par Chart.js
 canvas {
   color: var(--text-primary);
@@ -580,28 +672,55 @@ html.light-theme {
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
   select,
   textarea {
-    color: var(--text-primary) !important;   // #0f172a sur fond clair
-    background: rgba(15, 23, 42, 0.04) !important;
-    border-color: rgba(15, 23, 42, 0.15) !important;
+    color: #1a202c !important;
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
 
     &::placeholder { color: var(--text-muted) !important; }
 
     option {
-      background-color: #fff;
-      color: #0f172a;
+      background-color: #ffffff;
+      color: #1a202c;
     }
   }
 
-  // Tables en mode clair
-  th { color: var(--text-secondary) !important; border-color: rgba(15,23,42,0.08) !important; }
-  td { color: var(--text-secondary) !important; border-color: rgba(15,23,42,0.05) !important; }
+  .terminal-card .cli-input {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: #f8fafc !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    &:focus {
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    &::placeholder {
+      color: #64748b !important;
+    }
+  }
+
+  .terminal-card .chip-label {
+    color: #64748b !important;
+  }
+
+  .terminal-card .cli-chip {
+    color: #e2e8f0 !important;
+  }
+
+  // Tables en mode clair — texte principal lisible
+  th { color: #1a202c !important; border-color: #e2e8f0 !important; }
+  td { color: #1a202c !important; border-color: #e2e8f0 !important; }
 
   // Textes dans les cartes — dark sur fond clair
-  .glass-card, .glass-panel, .glass-elevated, .card {
-    color: var(--text-primary);
+  .glass-card:not(.terminal-card), .glass-panel, .glass-elevated, .card,
+  mat-card, .mat-mdc-card, .mdc-card {
+    color: #1a202c;
 
     .collab-name, .select-name, .smart-name, .membre-name,
-    .comp-name, .kpi-value { color: var(--text-primary) !important; }
+    .comp-name, .kpi-value { color: #1a202c !important; }
 
     .collab-poste, .select-poste, .smart-poste, .membre-poste,
     .comp-cat, .kpi-label { color: var(--text-muted) !important; }
@@ -622,4 +741,123 @@ html.light-theme {
 :focus-visible {
   outline:        2px solid var(--accent-cyan);
   outline-offset: 2px;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// MODE CLAIR — couche finale (piercing ::ng-deep, cartes dashboard collab)
+// Aucune variable --bg-card dans le dépôt (vérifié) : rien à neutraliser.
+// Note : feuille globale — ::ng-deep force la descente sous html.light-theme
+// pour surcharger les styles encapsulés des composants.
+// ════════════════════════════════════════════════════════════════════
+html.light-theme {
+  // Force le fond de page
+  body, .app-container, mat-sidenav-content {
+    background-color: #f8fafc !important;
+  }
+
+  // Force TOUTES les cartes et sections du dashboard en blanc pur
+  ::ng-deep {
+    .glass-card:not(.terminal-card), .card, mat-card, .stat-card, .chart-card,
+    .dashboard-section, .kpi-container, .chart-container,
+    .hero-card, .evolution-card, .category-card, .projet-mini-card,
+    .recent-projects, .categories-section {
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      opacity: 1 !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    // Typographie claire : limiter aux cartes listées (évite le terminal cyber)
+    .glass-card:not(.terminal-card) h1,
+    .glass-card:not(.terminal-card) h2,
+    .glass-card:not(.terminal-card) h3,
+    .glass-card:not(.terminal-card) h4,
+    .glass-card:not(.terminal-card) p,
+    .glass-card:not(.terminal-card) span,
+    .card h1,
+    .card h2,
+    .card h3,
+    .card h4,
+    .card p,
+    .card span,
+    mat-card h1,
+    mat-card h2,
+    mat-card h3,
+    mat-card h4,
+    mat-card p,
+    mat-card span,
+    .stat-card h1,
+    .stat-card h2,
+    .stat-card h3,
+    .stat-card h4,
+    .stat-card p,
+    .stat-card span,
+    .chart-card h1,
+    .chart-card h2,
+    .chart-card h3,
+    .chart-card h4,
+    .chart-card p,
+    .chart-card span,
+    .dashboard-section h1,
+    .dashboard-section h2,
+    .dashboard-section h3,
+    .dashboard-section h4,
+    .dashboard-section p,
+    .dashboard-section span,
+    .kpi-container h1,
+    .kpi-container h2,
+    .kpi-container h3,
+    .kpi-container h4,
+    .kpi-container p,
+    .kpi-container span,
+    .chart-container h1,
+    .chart-container h2,
+    .chart-container h3,
+    .chart-container h4,
+    .chart-container p,
+    .chart-container span,
+    .hero-card h1,
+    .hero-card h2,
+    .hero-card h3,
+    .hero-card h4,
+    .hero-card p,
+    .hero-card span,
+    .evolution-card h1,
+    .evolution-card h2,
+    .evolution-card h3,
+    .evolution-card h4,
+    .evolution-card p,
+    .evolution-card span,
+    .category-card h1,
+    .category-card h2,
+    .category-card h3,
+    .category-card h4,
+    .category-card p,
+    .category-card span,
+    .projet-mini-card h1,
+    .projet-mini-card h2,
+    .projet-mini-card h3,
+    .projet-mini-card h4,
+    .projet-mini-card p,
+    .projet-mini-card span,
+    .recent-projects h1,
+    .recent-projects h2,
+    .recent-projects h3,
+    .recent-projects h4,
+    .recent-projects p,
+    .recent-projects span,
+    .categories-section h1,
+    .categories-section h2,
+    .categories-section h3,
+    .categories-section h4,
+    .categories-section p,
+    .categories-section span,
+    .mat-card-title,
+    .kpi-label {
+      color: #1a202c !important;
+    }
+  }
 }

@@ -1,3 +1,16 @@
+:host-context(html.light-theme) {
+  .hero-card, .evolution-card, .category-card, .glass-card, .card, mat-card {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #1a202c !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+  }
+  h2, h3, .mat-card-title, span, p {
+    color: #1a202c !important;
+  }
+}
+
 // ════════════════════════════════════════════
 // DASHBOARD – Dark Cyber Theme + Terminal Feed
 // ════════════════════════════════════════════
@@ -566,3 +579,298 @@
 }
 
 .info-badge { font-family: var(--font-mono); }
+
+// ════════════════════════════════════════════════════════════════════
+// MODE CLAIR — aligné sur l’espace collaborateur (blanc pur, texte #1a202c)
+// .light-theme sur <html> — :host-context pour encapsulation Angular.
+// Rétablit le terminal sombre : styles.scss force .glass-card en blanc.
+// ════════════════════════════════════════════════════════════════════
+:host-context(.light-theme) {
+  .dashboard-container,
+  .dashboard-content {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+  }
+
+  .page-header {
+    h1.gradient-text {
+      background: none !important;
+      -webkit-background-clip: unset !important;
+      background-clip: unset !important;
+      -webkit-text-fill-color: #1a202c !important;
+      color: #1a202c !important;
+    }
+
+    p {
+      color: #64748b !important;
+    }
+  }
+
+  // Grilles de rangement — pas de transparence résiduelle entre les cartes
+  .kpi-grid,
+  .charts-grid,
+  .stats-grid,
+  .charts-row,
+  .bottom-row {
+    background: transparent;
+  }
+
+  // KPI + graphiques + liste récents (priorité sur var(--glass-bg) et blur local)
+  .kpi-card,
+  .chart-card,
+  .chart-card.glass-card,
+  .list-card,
+  .list-card.glass-card {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-color: #e2e8f0 !important;
+    box-shadow:
+      0 4px 6px -1px rgba(15, 23, 42, 0.06),
+      0 2px 4px -1px rgba(15, 23, 42, 0.04) !important;
+  }
+
+  .chart-wrapper,
+  .table-scroll {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .kpi-card {
+    .kpi-glow {
+      display: none !important;
+    }
+
+    .kpi-value,
+    .kpi-value--sm {
+      color: #1a202c !important;
+    }
+
+    .kpi-label {
+      color: #1a202c !important;
+    }
+
+    // Barre d’accent : couleur pleine (plus de dégradé vers transparent)
+    &.kpi-violet .kpi-bar {
+      background: #6366f1 !important;
+    }
+    &.kpi-cyan .kpi-bar {
+      background: #0284c7 !important;
+    }
+    &.kpi-amber .kpi-bar {
+      background: #d97706 !important;
+    }
+    &.kpi-green .kpi-bar {
+      background: #059669 !important;
+    }
+
+    &.kpi-violet {
+      border-top-color: #c7d2fe !important;
+    }
+    &.kpi-cyan {
+      border-top-color: #bae6fd !important;
+    }
+    &.kpi-amber {
+      border-top-color: #fde68a !important;
+    }
+    &.kpi-green {
+      border-top-color: #a7f3d0 !important;
+    }
+  }
+
+  .chart-card-header h3,
+  .list-card .card-header h3 {
+    color: #1a202c !important;
+  }
+
+  .distribution-table {
+    background: #ffffff !important;
+
+    th {
+      color: #1a202c !important;
+      border-bottom-color: #e2e8f0 !important;
+    }
+
+    td {
+      color: #1a202c !important;
+      border-bottom-color: #e2e8f0 !important;
+    }
+
+    .dept-name {
+      color: #1a202c !important;
+    }
+
+    tr:hover td {
+      background: #ffffff !important;
+    }
+  }
+
+  .collab-item {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0;
+    box-shadow: none;
+
+    &:hover {
+      background: #ffffff !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    }
+
+    .collab-avatar {
+      box-shadow: 0 0 0 2px #e2e8f0;
+    }
+
+    .collab-name {
+      color: #1a202c !important;
+    }
+
+    .collab-poste {
+      color: #64748b !important;
+    }
+  }
+
+  .skeleton-card {
+    background: linear-gradient(
+      90deg,
+      #f1f5f9 25%,
+      #e8ecf1 50%,
+      #f1f5f9 75%
+    ) !important;
+    background-size: 200% 100%;
+  }
+
+  // ── Terminal : îlot cyber sombre, lisible sur fond dashboard blanc
+  .terminal-card.glass-card {
+    background: #020408 !important;
+    background-color: #020408 !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow:
+      0 0 0 1px rgba(15, 23, 42, 0.08),
+      0 16px 48px rgba(0, 0, 0, 0.42),
+      0 8px 24px rgba(0, 0, 0, 0.28) !important;
+
+    .terminal-titlebar {
+      background: rgba(15, 23, 42, 0.85) !important;
+      border-bottom-color: rgba(52, 211, 153, 0.22) !important;
+
+      .terminal-title {
+        color: #94a3b8 !important;
+      }
+    }
+
+    .terminal-body .terminal-line {
+      .term-time {
+        color: #64748b !important;
+      }
+
+      .term-prompt,
+      .term-prompt-full {
+        color: #34d399 !important;
+      }
+
+      .term-text {
+        color: #94a3b8 !important;
+
+        &.kind-error {
+          color: #f87171 !important;
+        }
+        &.kind-info {
+          color: #cbd5e1 !important;
+        }
+        &.kind-search {
+          color: #22d3ee !important;
+        }
+        &.kind-output {
+          color: #6ee7b7 !important;
+        }
+      }
+
+      .term-cmd-text {
+        color: #f1f5f9 !important;
+      }
+
+      .term-tag.tag-dim {
+        color: #64748b !important;
+      }
+    }
+
+    .cli-row {
+      background: #1e293b !important;
+      border-top-color: rgba(52, 211, 153, 0.28) !important;
+
+      .cli-prompt {
+        color: #22d3ee !important;
+        text-shadow: 0 0 10px rgba(34, 211, 238, 0.35) !important;
+      }
+
+      .cli-input {
+        color: #f8fafc !important;
+        background: transparent !important;
+        background-color: transparent !important;
+
+        &::placeholder {
+          color: #64748b !important;
+        }
+      }
+    }
+
+    .cli-chips {
+      background: #0f172a !important;
+      border-top-color: rgba(52, 211, 153, 0.18) !important;
+
+      .chip-label {
+        color: #64748b !important;
+      }
+    }
+
+    .cli-chip {
+      background: #1e293b !important;
+      border-color: rgba(148, 163, 184, 0.35) !important;
+      color: #e2e8f0 !important;
+
+      &:hover {
+        background: #334155 !important;
+        color: #f8fafc !important;
+        border-color: rgba(226, 232, 240, 0.45) !important;
+      }
+
+      &.chip-cyan {
+        border-color: rgba(34, 211, 238, 0.45) !important;
+        color: #22d3ee !important;
+        &:hover {
+          background: rgba(34, 211, 238, 0.12) !important;
+          color: #a5f3fc !important;
+        }
+      }
+
+      &.chip-violet {
+        border-color: rgba(167, 139, 250, 0.45) !important;
+        color: #a78bfa !important;
+        &:hover {
+          background: rgba(167, 139, 250, 0.12) !important;
+          color: #ddd6fe !important;
+        }
+      }
+
+      &.chip-amber {
+        border-color: rgba(251, 191, 36, 0.45) !important;
+        color: #fbbf24 !important;
+        &:hover {
+          background: rgba(251, 191, 36, 0.12) !important;
+          color: #fde68a !important;
+        }
+      }
+
+      &.chip-green {
+        border-color: rgba(52, 211, 153, 0.45) !important;
+        color: #34d399 !important;
+        &:hover {
+          background: rgba(52, 211, 153, 0.12) !important;
+          color: #a7f3d0 !important;
+        }
+      }
+    }
+  }
+}

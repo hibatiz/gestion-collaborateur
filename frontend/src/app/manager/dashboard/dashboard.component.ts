@@ -408,13 +408,15 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // ── Couleurs charts adaptées au thème (lit les tokens CSS en temps réel)
   private getChartColors() {
-    const style = getComputedStyle(document.documentElement);
+    const root = document.documentElement;
+    const style = getComputedStyle(root);
+    const isLight = root.classList.contains('light-theme');
     const textSecondary = style.getPropertyValue('--text-secondary').trim() || '#cbd5e1';
-    return {
-      tick:   textSecondary,
-      legend: textSecondary,
-      grid:   'rgba(255,255,255,0.06)',
-    };
+    const tick = isLight ? '#1a202c' : textSecondary;
+    const legend = isLight ? '#1a202c' : textSecondary;
+    const grid = isLight ? 'rgba(15, 23, 42, 0.08)' : 'rgba(255,255,255,0.06)';
+    const gridFine = isLight ? 'rgba(15, 23, 42, 0.05)' : 'rgba(255,255,255,0.04)';
+    return { tick, legend, grid, gridFine };
   }
 
   // ── Charts (dark-theme-aware colors) ────────────────────────
@@ -430,7 +432,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const ctx = document.getElementById('barChart') as HTMLCanvasElement;
     if (!ctx) return;
     if (this.barChart) this.barChart.destroy();
-    const { tick, grid } = this.getChartColors();
+    const { tick, grid, gridFine } = this.getChartColors();
     this.barChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -446,7 +448,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         plugins: { legend: { display: false } },
         scales: {
           y: { beginAtZero: true, ticks: { stepSize: 1, color: tick }, grid: { color: grid } },
-          x: { ticks: { color: tick }, grid: { color: 'rgba(255,255,255,0.04)' } }
+          x: { ticks: { color: tick }, grid: { color: gridFine } }
         }
       }
     });
@@ -458,6 +460,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!ctx) return;
     if (this.doughnutChart) this.doughnutChart.destroy();
     const { legend } = this.getChartColors();
+    const isLight = document.documentElement.classList.contains('light-theme');
     this.doughnutChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
@@ -465,7 +468,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         datasets: [{
           data: Object.values(this.stats.repartitionNiveaux),
           backgroundColor: ['#64748b','#818cf8','#fbbf24','#34d399'],
-          borderColor: 'rgba(255,255,255,0.07)', borderWidth: 2
+          borderColor: isLight ? '#ffffff' : 'rgba(255,255,255,0.07)', borderWidth: 2
         }]
       },
       options: {
@@ -485,7 +488,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const ctx = document.getElementById('avgLevelChart') as HTMLCanvasElement;
     if (!ctx) return;
     if (this.avgLevelChart) this.avgLevelChart.destroy();
-    const { tick, grid } = this.getChartColors();
+    const { tick, grid, gridFine } = this.getChartColors();
     this.avgLevelChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -504,7 +507,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         scales: {
           x: { min: 0, max: 4, ticks: { stepSize: 1, color: tick }, grid: { color: grid } },
-          y: { ticks: { color: tick }, grid: { color: 'rgba(255,255,255,0.04)' } }
+          y: { ticks: { color: tick }, grid: { color: gridFine } }
         }
       }
     });

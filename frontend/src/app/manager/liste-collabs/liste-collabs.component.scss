@@ -1,3 +1,16 @@
+:host-context(html.light-theme) {
+  .hero-card, .evolution-card, .category-card, .glass-card, .card, mat-card {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #1a202c !important;
+    backdrop-filter: none !important;
+    opacity: 1 !important;
+  }
+  h2, h3, .mat-card-title, span, p {
+    color: #1a202c !important;
+  }
+}
+
 // ══════════════════════════════════════════════════════════════════════
 // LISTE COLLABS — Dark Glassmorphism Theme
 // Rewrote: all 'background: white' replaced with glass surfaces,
@@ -376,4 +389,146 @@ $muted:  #94a3b8;
 @keyframes shimmer {
   0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// MODE CLAIR — fonds opaques + texte (#1a202c) sur cartes / filtres
+// ════════════════════════════════════════════════════════════════════
+:host-context(.light-theme) {
+  .page-header {
+    h1 {
+      background: none !important;
+      -webkit-text-fill-color: #1a202c !important;
+      color: #1a202c !important;
+      -webkit-background-clip: unset !important;
+      background-clip: unset !important;
+    }
+
+    p {
+      color: #64748b !important;
+    }
+  }
+
+  .filter-bar {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
+
+    .search-input-wrapper input,
+    .select-wrapper select,
+    .select-wrapper .comp-input {
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      color: #1a202c !important;
+
+      &::placeholder {
+        color: #94a3b8 !important;
+      }
+
+      option {
+        background: #ffffff !important;
+        color: #1a202c !important;
+      }
+    }
+
+    .btn-reset {
+      background: #ffffff !important;
+    }
+  }
+
+  .collab-card {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
+
+    &:hover {
+      box-shadow:
+        0 4px 12px rgba(15, 23, 42, 0.08),
+        0 0 0 1px #e2e8f0 !important;
+    }
+
+    .avatar-circle {
+      box-shadow: 0 0 0 2px #e2e8f0;
+    }
+
+    .card-identity h3 {
+      color: #1a202c !important;
+    }
+
+    .poste {
+      color: #64748b !important;
+    }
+
+    .card-stats {
+      border-top-color: #e2e8f0 !important;
+      border-bottom-color: #e2e8f0 !important;
+
+      .stat-lbl {
+        color: #1a202c !important;
+      }
+
+      .stat-divider {
+        background: #e2e8f0 !important;
+      }
+    }
+
+    .comp-badge {
+      background: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      color: #64748b !important;
+    }
+  }
+
+  .pagination {
+    button {
+      background: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      color: #1a202c !important;
+
+      &:hover:not(:disabled) {
+        background: #ffffff !important;
+      }
+
+      &.active {
+        color: #ffffff !important;
+      }
+    }
+
+    .pagination-info {
+      color: #64748b !important;
+    }
+  }
+
+  .empty-state {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-color: #e2e8f0 !important;
+
+    p {
+      color: #64748b !important;
+    }
+
+    .btn-ghost {
+      background: #ffffff !important;
+    }
+  }
+
+  .skeleton-collab-card {
+    background: linear-gradient(
+      90deg,
+      #f1f5f9 25%,
+      #e8ecf1 50%,
+      #f1f5f9 75%
+    ) !important;
+    border-color: #e2e8f0 !important;
+  }
 }
