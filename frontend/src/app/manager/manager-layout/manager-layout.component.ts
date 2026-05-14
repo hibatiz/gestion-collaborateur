@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../auth/auth.service';
 import { TokenService } from '../../core/token.service';
+import { ThemeService } from '../../core/theme.service';
 
 @Component({
   selector: 'app-manager-layout',
@@ -12,9 +13,10 @@ export class ManagerLayoutComponent implements OnInit {
   username: string = '';
 
   constructor(
-    private authService: AuthService,
+    private authService:  AuthService,
     private tokenService: TokenService,
-    private router: Router
+    private router:       Router,
+    public  themeService: ThemeService   // public → accessible depuis le template
   ) {}
 
   ngOnInit(): void {

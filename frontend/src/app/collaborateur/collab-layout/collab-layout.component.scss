@@ -53,6 +53,7 @@
     width: 36px;
     flex-shrink: 0;
     filter: drop-shadow(0 0 8px rgba(129, 140, 248, 0.5));
+    // object-fit ne s'applique pas aux SVG inline — width/height suffisent
   }
 
   .brand-text {
@@ -144,6 +145,52 @@
     &::before { content: '> '; color: var(--accent-green); }
 
     @media (max-width: 640px) { display: none; }
+  }
+
+  // ── Bouton toggle thème ─────────────────────────────────────────
+  // Shared between collab & manager navbars via this class name
+  .btn-theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.25s;
+    flex-shrink: 0;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      pointer-events: none;
+      transition: transform 0.4s ease;
+    }
+
+    &:hover {
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.35);
+      color: var(--accent-cyan);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+
+      svg { transform: rotate(20deg); }
+    }
+
+    // En mode clair : bordure légèrement ambre pour l'icône lune
+    :host-context(.light-theme) & {
+      border-color: rgba(251, 191, 36, 0.25);
+      color: var(--accent-amber);
+
+      &:hover {
+        background: rgba(251, 191, 36, 0.1);
+        border-color: rgba(251, 191, 36, 0.4);
+        color: var(--accent-amber);
+        box-shadow: 0 0 12px rgba(251, 191, 36, 0.2);
+      }
+    }
   }
 
   .btn-logout {

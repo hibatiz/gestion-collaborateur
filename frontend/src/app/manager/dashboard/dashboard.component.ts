@@ -406,7 +406,18 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       .map(n => String(n).padStart(2, '0')).join(':');
   }
 
-  // ── Charts (unchanged logic, dark colors) ───────────────────
+  // ── Couleurs charts adaptées au thème (lit les tokens CSS en temps réel)
+  private getChartColors() {
+    const style = getComputedStyle(document.documentElement);
+    const textSecondary = style.getPropertyValue('--text-secondary').trim() || '#cbd5e1';
+    return {
+      tick:   textSecondary,
+      legend: textSecondary,
+      grid:   'rgba(255,255,255,0.06)',
+    };
+  }
+
+  // ── Charts (dark-theme-aware colors) ────────────────────────
   buildCharts(): void {
     if (!this.stats) return;
     this.buildTop5Chart();
@@ -419,6 +430,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const ctx = document.getElementById('barChart') as HTMLCanvasElement;
     if (!ctx) return;
     if (this.barChart) this.barChart.destroy();
+    const { tick, grid } = this.getChartColors();
     this.barChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -433,8 +445,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         responsive: true, maintainAspectRatio: false,
         plugins: { legend: { display: false } },
         scales: {
-          y: { beginAtZero: true, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.06)' } },
-          x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+          y: { beginAtZero: true, ticks: { stepSize: 1, color: tick }, grid: { color: grid } },
+          x: { ticks: { color: tick }, grid: { color: 'rgba(255,255,255,0.04)' } }
         }
       }
     });
@@ -445,19 +457,25 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const ctx = document.getElementById('doughnutChart') as HTMLCanvasElement;
     if (!ctx) return;
     if (this.doughnutChart) this.doughnutChart.destroy();
+    const { legend } = this.getChartColors();
     this.doughnutChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
         labels: Object.keys(this.stats.repartitionNiveaux),
         datasets: [{
           data: Object.values(this.stats.repartitionNiveaux),
-          backgroundColor: ['#475569','#818cf8','#fbbf24','#34d399'],
-          borderColor: 'rgba(255,255,255,0.05)', borderWidth: 2
+          backgroundColor: ['#64748b','#818cf8','#fbbf24','#34d399'],
+          borderColor: 'rgba(255,255,255,0.07)', borderWidth: 2
         }]
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 12, boxWidth: 10 } } }
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { color: legend, padding: 12, boxWidth: 10, font: { size: 12 } }
+          }
+        }
       }
     });
   }
@@ -467,6 +485,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     const ctx = document.getElementById('avgLevelChart') as HTMLCanvasElement;
     if (!ctx) return;
     if (this.avgLevelChart) this.avgLevelChart.destroy();
+    const { tick, grid } = this.getChartColors();
     this.avgLevelChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -484,8 +503,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
           tooltip: { callbacks: { label: (c) => `Moyenne: ${Number(c.raw).toFixed(2)}` } }
         },
         scales: {
-          x: { min: 0, max: 4, ticks: { stepSize: 1, color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.06)' } },
-          y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.04)' } }
+          x: { min: 0, max: 4, ticks: { stepSize: 1, color: tick }, grid: { color: grid } },
+          y: { ticks: { color: tick }, grid: { color: 'rgba(255,255,255,0.04)' } }
         }
       }
     });

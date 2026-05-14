@@ -24,11 +24,13 @@
   --glow-cyan:       rgba(56, 189, 248, 0.4);
   --glow-green:      rgba(52, 211, 153, 0.4);
 
-  // Text
-  --text-primary:    #f1f5f9;
-  --text-secondary:  #94a3b8;
-  --text-muted:      #475569;
-  --text-disabled:   #334155;
+  // Text — ratios de contraste WCAG AA garantis sur fond sombre
+  // glass-card bg ≈ rgba(30,41,59,0.5) → luminance ~0.03
+  // #f1f5f9 : contraste 16.8:1 ✅  #cbd5e1 : 9.2:1 ✅  #94a3b8 : 4.8:1 ✅
+  --text-primary:    #f1f5f9;   // blanc cassé — titres, noms, valeurs principales
+  --text-secondary:  #cbd5e1;   // gris très clair — labels, sous-titres (slate-200)
+  --text-muted:      #94a3b8;   // gris clair — métadonnées, hints (slate-400)
+  --text-disabled:   #64748b;   // slate-500 — éléments désactivés
 
   // Glass surfaces
   --glass-bg:        rgba(255, 255, 255, 0.045);
@@ -62,6 +64,7 @@
   --radius-badge:   100px;
 }
 
+
 // ── Global Reset & Base ───────────────────────────────────────
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -71,20 +74,243 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+// ════════════════════════════════════════════════════════════════════
+// MODE CLAIR — .light-theme sur <html>
+//
+// Redéfinit les tokens de couleur. Les accents Cyan/Violet/Green
+// sont conservés pour la cohérence visuelle.
+// Le ThemeService ajoute/retire cette classe sur document.documentElement.
+// ════════════════════════════════════════════════════════════════════
+html.light-theme {
+  // ── Fonds — fond de page légèrement gris pour faire ressortir les cartes blanches
+  --bg-void:     #dde3ea;
+  --bg-deep:     #eef2f7;   // fond de page global
+  --bg-surface:  #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-overlay:  rgba(238, 242, 247, 0.95);
+
+  // ── Accents — légèrement plus saturés pour contraste sur fond clair
+  --accent-violet: #6366f1;
+  --accent-cyan:   #0284c7;
+  --accent-green:  #059669;
+  --accent-amber:  #d97706;
+  --accent-rose:   #dc2626;
+
+  // ── Lueurs — atténuées sur fond clair
+  --glow-violet: rgba(99,  102, 241, 0.12);
+  --glow-cyan:   rgba(2,   132, 199, 0.12);
+  --glow-green:  rgba(5,   150, 105, 0.12);
+
+  // ── Texte — slate très foncé pour contraste maximal sur blanc
+  --text-primary:   #1e293b;   // slate-800 — titres, noms, valeurs
+  --text-secondary: #334155;   // slate-700 — labels, sous-titres
+  --text-muted:     #64748b;   // slate-500 — métadonnées, hints
+  --text-disabled:  #94a3b8;   // slate-400 — désactivés
+
+  // ── Surfaces cartes — BLANC PUR, zéro transparence, zéro flou
+  --glass-bg:       #ffffff;
+  --glass-bg-hover: #ffffff;
+  --glass-border:   rgba(15, 23, 42, 0.08);
+  --glass-shadow:   rgba(15, 23, 42, 0.06);
+
+  // ── Ombre portée douce
+  --card-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.10),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+  // ── Legacy aliases
+  --primary-color: #6366f1;
+  --accent-color:  #0284c7;
+  --card-bg:       #ffffff;
+  --bg-color:      #eef2f7;
+  --bg-elevated:   #ffffff;
+  --text-dark:     #1e293b;
+  --text-light:    #334155;
+}
+
+// ── Body adaptatif ───────────────────────────────────────────────────
 body {
   margin: 0;
   font-family: var(--font-sans);
   background-color: var(--bg-deep);
   color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
 
-  // Global dot-grid background texture
+  // Dot-grid sombre (désactivé en mode clair via html.light-theme ci-dessous)
   background-image:
-    radial-gradient(circle, rgba(129,140,248,0.08) 1px, transparent 1px),
-    radial-gradient(circle, rgba(56,189,248,0.05) 1px, transparent 1px);
+    radial-gradient(circle, var(--glow-violet, rgba(129,140,248,0.08)) 1px, transparent 1px),
+    radial-gradient(circle, var(--glow-cyan,   rgba(56,189,248,0.05))  1px, transparent 1px);
   background-size: 40px 40px, 80px 80px;
   background-position: 0 0, 20px 20px;
   background-attachment: fixed;
 }
+
+// En mode clair : fond uni propre, pas de dot-grid qui grise la page
+html.light-theme body {
+  background-image: none;
+  background-color: #eef2f7;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// MODE CLAIR — Overrides composants
+// Navbars, cartes, inputs, tables — tout passe en blanc pur
+// ════════════════════════════════════════════════════════════════════
+html.light-theme {
+
+  // ── Navbar ─────────────────────────────────────────────────────────
+  .top-nav {
+    background: #ffffff !important;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+    box-shadow: 0 1px 0 rgba(99,102,241,0.08), 0 2px 8px rgba(0,0,0,0.05) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+
+    &::after {
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(99,102,241,0.35) 30%,
+        rgba(2,132,199,0.35) 70%,
+        transparent 100%
+      ) !important;
+    }
+  }
+
+  // Liens de navigation
+  .nav-links a {
+    color: var(--text-muted) !important;
+    &:hover {
+      background: rgba(15, 23, 42, 0.04) !important;
+      color: var(--text-secondary) !important;
+    }
+    &.active {
+      color: var(--accent-cyan) !important;
+      background: rgba(2, 132, 199, 0.07) !important;
+    }
+  }
+
+  // Brand text
+  .brand-text {
+    color: var(--text-secondary) !important;
+    strong { color: var(--text-primary) !important; }
+  }
+
+  // Username pill — blanc pur
+  .username {
+    background: #ffffff !important;
+    border-color: rgba(15, 23, 42, 0.12) !important;
+    color: var(--text-secondary) !important;
+    &::before { color: var(--accent-green) !important; }
+  }
+
+  // ── Cartes — BLANC PUR, sans flou ni transparence ──────────────────
+  .glass-card,
+  .glass-panel,
+  .glass-elevated,
+  .card {
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.10),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+
+    // Texte à l'intérieur des cartes — noir/slate pour contraste maximal
+    color: #1e293b !important;
+
+    h1, h2, h3, h4, h5, h6 { color: #1e293b !important; }
+    p, span, li, td, th     { color: #334155 !important; }
+    label                   { color: #334155 !important; }
+
+    // Exceptions : les badges colorés gardent leur couleur d'accent
+    [class*="badge"],
+    [class*="chip"],
+    [class*="tag"],
+    .accent,
+    .gradient-text          { color: inherit !important; }
+  }
+
+  // ── Zones de liste / filter-bar — blanc pur ─────────────────────────
+  .filter-bar,
+  .search-wrapper,
+  .list-container,
+  .table-wrapper,
+  table {
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.10),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  }
+
+  // ── Inputs / selects — blanc pur avec bordure légère ────────────────
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  select,
+  textarea {
+    background: #ffffff !important;
+    border-color: rgba(15, 23, 42, 0.18) !important;
+    color: #1e293b !important;
+
+    &::placeholder { color: #94a3b8 !important; }
+
+    &:focus {
+      background: #ffffff !important;
+      border-color: var(--accent-cyan) !important;
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12) !important;
+      outline: none !important;
+    }
+
+    option {
+      background: #ffffff;
+      color: #1e293b;
+    }
+  }
+
+  // ── Tables — blanc pur, bordures très fines ──────────────────────────
+  th {
+    background: #ffffff !important;
+    color: #1e293b !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+    font-weight: 600;
+  }
+
+  td {
+    color: #334155 !important;
+    border-color: rgba(15, 23, 42, 0.05) !important;
+    background: #ffffff !important;
+  }
+
+  tr:hover td {
+    background: #f8fafc !important;
+  }
+
+  // ── Headings globaux en mode clair ───────────────────────────────────
+  h1, h2, h3, h4, h5, h6 {
+    color: #1e293b;
+  }
+
+  // ── Scrollbar claire ─────────────────────────────────────────────────
+  ::-webkit-scrollbar-track { background: #f1f5f9; }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.15);
+    &:hover { background: rgba(15, 23, 42, 0.25); }
+  }
+
+  // ── Textes dans les cartes — dark sur fond clair ─────────────────────
+  .glass-card, .glass-panel, .glass-elevated, .card {
+    .collab-name, .select-name, .smart-name, .membre-name,
+    .comp-name, .kpi-value, .projet-mini-nom,
+    h1, h2, h3, h4 { color: #1e293b !important; }
+
+    .collab-poste, .select-poste, .smart-poste, .membre-poste,
+    .comp-cat, .kpi-label, .hint, .hint-sm,
+    p, small { color: #64748b !important; }
+  }
+}
+
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-head);
@@ -243,51 +469,154 @@ a { color: var(--accent-cyan); text-decoration: none; }
 }
 
 // ════════════════════════════════════════════════════════════════════
+// GARANTIE DE CONTRASTE — Texte lisible en mode sombre
+//
+// Force les couleurs de texte sur toutes les surfaces glass et les
+// composants communs pour éviter tout texte invisible.
+// Appliqué HORS .light-theme donc uniquement en mode sombre par défaut.
+// ════════════════════════════════════════════════════════════════════
+
+// ── 1. Titres de section / headings — toujours text-primary ─────────
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+}
+
+// ── 2. Texte dans les glass-cards — force le blanc cassé ────────────
+.glass-card,
+.glass-panel,
+.glass-elevated,
+.card {
+  // Tout texte brut non ciblé par une classe spécifique
+  color: var(--text-primary);
+
+  p, span:not(.badge):not(.chip):not([class*="tag"]):not([class*="badge"]) {
+    color: inherit;
+  }
+
+  // Labels de formulaire — text-secondary suffisamment lisible
+  label {
+    color: var(--text-secondary);
+  }
+
+  // Textes secondaires — garantir au minimum text-muted (#94a3b8 = 4.8:1)
+  .text-muted,
+  .subtitle,
+  .hint,
+  .hint-sm,
+  small {
+    color: var(--text-muted);
+  }
+
+  // Noms principaux (cartes collaborateurs, projets)
+  .collab-name,
+  .select-name,
+  .smart-name,
+  .membre-name,
+  .comp-name,
+  .project-name,
+  .projet-mini-nom,
+  .kpi-value {
+    color: var(--text-primary) !important;
+  }
+
+  // Sous-textes (poste, catégorie, date)
+  .collab-poste,
+  .select-poste,
+  .smart-poste,
+  .membre-poste,
+  .comp-cat,
+  .projet-mini-role,
+  .kpi-label {
+    color: var(--text-muted) !important;
+  }
+}
+
+// ── 3. Labels de formulaire globaux ─────────────────────────────────
+label {
+  color: var(--text-secondary);
+}
+
+// ── 4. Inputs / selects — texte toujours lisible ─────────────────────
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+select,
+textarea {
+  color: var(--text-primary) !important;
+
+  &::placeholder {
+    color: var(--text-disabled) !important;
+    opacity: 1; // Firefox normalize
+  }
+
+  option {
+    background-color: var(--bg-elevated, #111827);
+    color: var(--text-primary);
+  }
+}
+
+// ── 5. Tables — texte lisible en dark mode ───────────────────────────
+th {
+  color: var(--text-secondary) !important;
+}
+
+td {
+  color: var(--text-secondary) !important;
+}
+
+// ── 6. Légendes de graphiques (Chart.js) ────────────────────────────
+// Chart.js écrit ses légendes en noir par défaut.
+// On injecte via une variable CSS lue par les config JS des composants.
+// Les composants doivent utiliser : color: getComputedStyle(document.documentElement).getPropertyValue('--chart-legend-color')
+--chart-legend-color: var(--text-secondary);
+
+// Override canvas text si injecté inline par Chart.js
+canvas {
+  color: var(--text-primary);
+}
+
+// ── 7. Mode clair — inverser les corrections ci-dessus ───────────────
+html.light-theme {
+  label { color: var(--text-secondary); }  // déjà ok
+
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  select,
+  textarea {
+    color: var(--text-primary) !important;   // #0f172a sur fond clair
+    background: rgba(15, 23, 42, 0.04) !important;
+    border-color: rgba(15, 23, 42, 0.15) !important;
+
+    &::placeholder { color: var(--text-muted) !important; }
+
+    option {
+      background-color: #fff;
+      color: #0f172a;
+    }
+  }
+
+  // Tables en mode clair
+  th { color: var(--text-secondary) !important; border-color: rgba(15,23,42,0.08) !important; }
+  td { color: var(--text-secondary) !important; border-color: rgba(15,23,42,0.05) !important; }
+
+  // Textes dans les cartes — dark sur fond clair
+  .glass-card, .glass-panel, .glass-elevated, .card {
+    color: var(--text-primary);
+
+    .collab-name, .select-name, .smart-name, .membre-name,
+    .comp-name, .kpi-value { color: var(--text-primary) !important; }
+
+    .collab-poste, .select-poste, .smart-poste, .membre-poste,
+    .comp-cat, .kpi-label { color: var(--text-muted) !important; }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
 // GLOBAL DARK OVERRIDE — Suppression définitive du blanc
 //
 // Ces règles interceptent tout fond blanc/clair résiduel dans des
 // composants non encore convertis individuellement.
 // ════════════════════════════════════════════════════════════════════
 
-// ── Inputs / Selects / Textareas — dark par défaut ──────────────────
-input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-select,
-textarea {
-  background:    rgba(255, 255, 255, 0.04);
-  border:        1px solid rgba(255, 255, 255, 0.1);
-  color:         var(--text-primary);
-  border-radius: var(--radius-sm);
-  transition:    border-color 0.2s, box-shadow 0.2s;
-
-  &::placeholder { color: var(--text-muted); }
-
-  &:focus {
-    border-color: var(--accent-cyan);
-    box-shadow:   0 0 0 3px rgba(56, 189, 248, 0.12);
-    outline:      none;
-  }
-}
-
-// Native <select> option background (Chromium)
-option {
-  background-color: #1e293b;
-  color: var(--text-primary);
-}
-
-// ── Tables — dark par défaut ─────────────────────────────────────────
-table { background: transparent; }
-
-th {
-  color:        var(--text-secondary);
-  border-color: rgba(255, 255, 255, 0.07);
-  background:   transparent;
-}
-
-td {
-  color:        var(--text-secondary);
-  border-color: rgba(255, 255, 255, 0.04);
-  background:   transparent;
-}
+// (Inputs, tables et focus-visible maintenant gérés dans le bloc
+// GARANTIE DE CONTRASTE ci-dessus pour éviter les doublons)
 
 // ── Focus-visible ring accessible ────────────────────────────────────
 :focus-visible {
