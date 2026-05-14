@@ -45,7 +45,7 @@ public class CvController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
-        headers.setContentDispositionFormData("attachment", filename);
+        headers.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
         headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
 
         return ResponseEntity.ok().headers(headers).body(pdfBytes);

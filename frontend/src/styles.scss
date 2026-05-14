@@ -241,3 +241,56 @@ a { color: var(--accent-cyan); text-decoration: none; }
 @media (max-width: 768px) {
   .hide-mobile { display: none !important; }
 }
+
+// ════════════════════════════════════════════════════════════════════
+// GLOBAL DARK OVERRIDE — Suppression définitive du blanc
+//
+// Ces règles interceptent tout fond blanc/clair résiduel dans des
+// composants non encore convertis individuellement.
+// ════════════════════════════════════════════════════════════════════
+
+// ── Inputs / Selects / Textareas — dark par défaut ──────────────────
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+select,
+textarea {
+  background:    rgba(255, 255, 255, 0.04);
+  border:        1px solid rgba(255, 255, 255, 0.1);
+  color:         var(--text-primary);
+  border-radius: var(--radius-sm);
+  transition:    border-color 0.2s, box-shadow 0.2s;
+
+  &::placeholder { color: var(--text-muted); }
+
+  &:focus {
+    border-color: var(--accent-cyan);
+    box-shadow:   0 0 0 3px rgba(56, 189, 248, 0.12);
+    outline:      none;
+  }
+}
+
+// Native <select> option background (Chromium)
+option {
+  background-color: #1e293b;
+  color: var(--text-primary);
+}
+
+// ── Tables — dark par défaut ─────────────────────────────────────────
+table { background: transparent; }
+
+th {
+  color:        var(--text-secondary);
+  border-color: rgba(255, 255, 255, 0.07);
+  background:   transparent;
+}
+
+td {
+  color:        var(--text-secondary);
+  border-color: rgba(255, 255, 255, 0.04);
+  background:   transparent;
+}
+
+// ── Focus-visible ring accessible ────────────────────────────────────
+:focus-visible {
+  outline:        2px solid var(--accent-cyan);
+  outline-offset: 2px;
+}

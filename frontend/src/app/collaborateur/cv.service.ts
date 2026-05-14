@@ -13,20 +13,28 @@ export class CvService {
 
   generateCv(collaborateurId: number): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/generate/${collaborateurId}`, {
-      responseType: 'blob'
+      responseType: 'blob',
+      headers: { 'Accept': 'application/pdf' }
     });
   }
 
   downloadCv(collaborateurId: number, nomFichier?: string): void {
-    this.generateCv(collaborateurId).subscribe(blob => {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = nomFichier || `CV_${collaborateurId}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+    this.generateCv(collaborateurId).subscribe({
+      next: blob => {
+        // Ensure the blob is typed as PDF regardless of the response Content-Type
+        const pdfBlob = new Blob([blob], { type: 'application/pdf' });
+        const url = URL.createObjectURL(pdfBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nomFichier || `CV_${collaborateurId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      },
+      error: err => {
+        console.error('[CvService.downloadCv]', err);
+      }
     });
   }
 

@@ -1,3 +1,24 @@
+// ══════════════════════════════════════════════════════════════════════
+// COLLAB DETAIL (Manager view) — Dark Glassmorphism Theme
+// All white cards replaced with glass surfaces, text mapped to tokens.
+// ══════════════════════════════════════════════════════════════════════
+
+$cyan:   #38bdf8;
+$violet: #818cf8;
+$green:  #34d399;
+$amber:  #fbbf24;
+$muted:  #94a3b8;
+
+%glass {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+}
+
+// ── Page layout ────────────────────────────────────────────────────────
 .detail-page {
   display: flex;
   flex-direction: column;
@@ -8,23 +29,23 @@
   .btn-back {
     background: transparent;
     border: none;
-    color: #64748B;
+    color: $muted;
     font-weight: 600;
     cursor: pointer;
     padding: 8px 0;
     font-size: 14px;
-    &:hover { color: #1B2A4A; }
+    transition: color 0.2s;
+    &:hover { color: $cyan; }
   }
 }
 
+// ── Profile card ───────────────────────────────────────────────────────
 .profile-card {
-  background: white;
-  border-radius: 16px;
+  @extend %glass;
   padding: 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 
   .profile-main {
     display: flex;
@@ -32,8 +53,7 @@
     align-items: center;
 
     .avatar-large {
-      width: 100px;
-      height: 100px;
+      width: 100px; height: 100px;
       border-radius: 20px;
       color: white;
       font-size: 32px;
@@ -41,24 +61,50 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 0 24px rgba(129, 140, 248, 0.3);
     }
 
     .profile-info {
-      h1 { margin: 0; font-size: 28px; color: #1B2A4A; }
-      .poste { color: #64748B; font-size: 16px; margin: 4px 0 12px 0; }
-      
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        color: var(--text-primary, #f1f5f9);
+      }
+      .poste {
+        color: $cyan;
+        font-size: 16px;
+        margin: 4px 0 12px 0;
+      }
+
       .badges {
         display: flex;
         gap: 12px;
-        .badge-blue { background: #E0E7FF; color: #4338CA; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 500; }
-        .badge-gray { background: #F1F5F9; color: #475569; padding: 4px 12px; border-radius: 6px; font-size: 13px; }
+
+        .badge-blue {
+          background: rgba(129, 140, 248, 0.12);
+          color: $violet;
+          border: 1px solid rgba(129, 140, 248, 0.25);
+          padding: 4px 12px;
+          border-radius: 6px;
+          font-size: 13px;
+          font-weight: 500;
+        }
+        .badge-gray {
+          background: rgba(255, 255, 255, 0.06);
+          color: $muted;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          padding: 4px 12px;
+          border-radius: 6px;
+          font-size: 13px;
+        }
       }
     }
   }
 
   .role-badge {
-    background: #FEF3C7;
-    color: #92400E;
+    background: rgba(251, 191, 36, 0.1);
+    color: $amber;
+    border: 1px solid rgba(251, 191, 36, 0.25);
     padding: 6px 12px;
     border-radius: 6px;
     font-size: 13px;
@@ -66,30 +112,34 @@
   }
 }
 
+// ── Detail grid ────────────────────────────────────────────────────────
 .detail-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-  }
+  @media (max-width: 1024px) { grid-template-columns: 1fr; }
 }
 
+// ── Section card ───────────────────────────────────────────────────────
 .section-card {
-  background: white;
-  border-radius: 16px;
+  @extend %glass;
   padding: 24px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 
   .section-header {
     margin-bottom: 20px;
     padding-bottom: 12px;
-    border-bottom: 1px solid #F1F5F9;
-    h3 { margin: 0; font-size: 18px; color: #1B2A4A; }
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      color: $cyan;
+    }
   }
 }
 
+// ── Competences list ───────────────────────────────────────────────────
 .competences-list {
   display: flex;
   flex-direction: column;
@@ -100,31 +150,37 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px;
-    background: #F8FAFC;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 8px;
+    transition: background 0.2s;
+
+    &:hover { background: rgba(255, 255, 255, 0.07); }
 
     .comp-info {
-      .comp-name { display: block; font-weight: 600; color: #1B2A4A; font-size: 14px; }
-      .comp-cat { font-size: 11px; color: #94A3B8; text-transform: uppercase; }
+      .comp-name { display: block; font-weight: 600; color: var(--text-primary, #f1f5f9); font-size: 14px; }
+      .comp-cat  { font-size: 11px; color: $muted; text-transform: uppercase; letter-spacing: 0.05em; }
     }
 
     .comp-level {
       text-align: right;
+
       .level-tag {
         display: block;
         font-size: 12px;
         font-weight: 700;
         margin-bottom: 2px;
-        &[data-level="EXPERT"] { color: #10B981; }
-        &[data-level="AVANCE"] { color: #F59E0B; }
-        &[data-level="INTERMEDIAIRE"] { color: #2E7CF6; }
-        &[data-level="DEBUTANT"] { color: #94A3B8; }
+        &[data-level="EXPERT"]        { color: $green; }
+        &[data-level="AVANCE"]        { color: $amber; }
+        &[data-level="INTERMEDIAIRE"] { color: $cyan; }
+        &[data-level="DEBUTANT"]      { color: $muted; }
       }
-      .comp-date { font-size: 11px; color: #94A3B8; }
+      .comp-date { font-size: 11px; color: $muted; }
     }
   }
 }
 
+// ── Projets list ───────────────────────────────────────────────────────
 .projets-list {
   display: flex;
   flex-direction: column;
@@ -133,31 +189,47 @@
   .projet-item {
     position: relative;
     padding-left: 20px;
-    border-left: 2px solid #E2E8F0;
+    border-left: 2px solid rgba(56, 189, 248, 0.25);
 
-    .projet-date { font-size: 12px; color: #94A3B8; margin-bottom: 4px; }
-    h4 { margin: 0; font-size: 15px; color: #1B2A4A; }
-    .role { font-size: 13px; font-weight: 600; color: #2E7CF6; margin: 4px 0; }
-    .desc { font-size: 13px; color: #64748B; margin-bottom: 8px; line-height: 1.5; }
+    .projet-date { font-size: 12px; color: $muted; margin-bottom: 4px; }
+    h4 { margin: 0; font-size: 15px; color: var(--text-primary, #f1f5f9); }
+    .role { font-size: 13px; font-weight: 600; color: $cyan; margin: 4px 0; }
+    .desc { font-size: 13px; color: $muted; margin-bottom: 8px; line-height: 1.5; }
 
     .techs {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      .tech-tag { background: #F1F5F9; color: #475569; font-size: 11px; padding: 2px 8px; border-radius: 4px; }
+
+      .tech-tag {
+        background: rgba(129, 140, 248, 0.1);
+        color: $violet;
+        border: 1px solid rgba(129, 140, 248, 0.2);
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-family: var(--font-mono);
+      }
     }
   }
 }
 
+// ── Skeleton ────────────────────────────────────────────────────────────
 .skeleton-detail {
   height: 400px;
-  background: linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%);
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.04) 75%
+  );
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: shimmer 1.5s ease-in-out infinite;
   border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
+  0%   { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }

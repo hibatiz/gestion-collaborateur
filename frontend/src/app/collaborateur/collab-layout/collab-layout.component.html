@@ -2,9 +2,22 @@
 <div class="collab-layout">
   <nav class="top-nav">
 
-    <!-- Brand -->
+    <!-- Brand — pure CSS/SVG, zero external image files -->
     <div class="nav-brand">
-      <img src="assets/logo-mao.png" alt="MAO Conseil" class="brand-logo"/>
+      <!-- Inline SVG replaces assets/logo-mao.png to prevent 'wrong PNG signature'
+           errors when html2canvas clones the document during CV generation -->
+      <svg class="brand-logo" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"
+           aria-label="MAO Conseil logo">
+        <rect width="36" height="36" rx="8" fill="url(#logoGrad)"/>
+        <text x="18" y="24" font-family="'Inter',sans-serif" font-size="14" font-weight="800"
+              fill="white" text-anchor="middle" letter-spacing="-0.5">M</text>
+        <defs>
+          <linearGradient id="logoGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#818cf8"/>
+            <stop offset="100%" stop-color="#38bdf8"/>
+          </linearGradient>
+        </defs>
+      </svg>
       <span class="brand-text">MAO Conseil &mdash; <strong>Espace Collaborateur</strong></span>
     </div>
 

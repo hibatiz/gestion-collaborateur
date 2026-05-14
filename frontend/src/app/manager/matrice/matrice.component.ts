@@ -6,6 +6,9 @@ import { ManagerService } from '../manager.service';
 import { MatriceData, CollabRow } from '../../shared/models/manager.model';
 import * as d3 from 'd3';
 
+// ExcelJS loaded lazily (heavy lib ~600 KB)
+declare const require: any;
+
 interface GraphNode extends d3.SimulationNodeDatum {
   id:    string;
   label: string;
@@ -270,12 +273,164 @@ export class MatriceComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  exportExcel(): void {
+  // ════════════════════════════════════════════════════════════
+  // FEATURE B – ExcelJS styled export (100% client-side)
+  // ════════════════════════════════════════════════════════════
+  async exportExcel(): Promise<void> {
+    if (!this.matrice) return;
     this.exportingFormat = 'xlsx';
-    this.managerService.exportMatrice('xlsx').subscribe({
-      next: (blob) => { this.managerService.triggerDownload(blob, 'matrice_competences.xlsx'); this.exportingFormat = null; },
-      error: () => this.exportingFormat = null
-    });
+
+    try {
+      // ── Lazy-load ExcelJS to keep initial bundle small ────────
+      const ExcelJS = await import('exceljs');
+      const workbook  = new ExcelJS.Workbook();
+      workbook.creator  = 'MAO Conseils – RH Platform';
+      workbook.created  = new Date();
+
+      const ws = workbook.addWorksheet('Matrice Compétences', {
+        views: [{ state: 'frozen', xSplit: 1, ySplit: 1 }]
+      });
+
+      // ── Color palette ─────────────────────────────────────────
+      const COLORS = {
+        headerBg:    '0B1120',   // bleu nuit profond
+        headerText:  'F1F5F9',
+        collabBg:    '111827',
+        collabText:  'E2E8F0',
+        expert:      { bg: '064E3B', font: '34D399', label: 'EXPERT' },
+        avance:      { bg: '2E1065', font: 'A78BFA', label: 'AVANCÉ' },
+        intermediaire: { bg: '0C4A6E', font: '38BDF8', label: 'INTER' },
+        debutant:    { bg: '1E293B', font: '94A3B8', label: 'DEB'   },
+        empty:       { bg: '0F172A', font: '334155', label: ''      },
+        rowAlt:      '0D1A2E',
+      };
+
+      const makeFill = (hex: string) => ({
+        type: 'pattern' as const,
+        pattern: 'solid' as const,
+        fgColor: { argb: 'FF' + hex }
+      });
+
+      const boldFont  = (hex: string, size = 10) =>
+        ({ name: 'Calibri', size, bold: true,  color: { argb: 'FF' + hex } });
+      const normalFont = (hex: string, size = 9) =>
+        ({ name: 'Calibri', size, bold: false, color: { argb: 'FF' + hex } });
+
+      const thinBorder = {
+        top:    { style: 'thin' as const, color: { argb: 'FF1E293B' } },
+        left:   { style: 'thin' as const, color: { argb: 'FF1E293B' } },
+        bottom: { style: 'thin' as const, color: { argb: 'FF1E293B' } },
+        right:  { style: 'thin' as const, color: { argb: 'FF1E293B' } },
+      };
+
+      // ── Column widths ─────────────────────────────────────────
+      const comps = this.matrice.competences;
+      ws.getColumn(1).width = 26;
+      for (let i = 0; i < comps.length; i++) {
+        ws.getColumn(i + 2).width = Math.max(10, comps[i].length + 2);
+      }
+
+      // ── Row 1 : Header ───────────────────────────────────────
+      const headerRow = ws.getRow(1);
+      headerRow.height = 32;
+
+      // Col A header
+      const cellA1 = ws.getCell('A1');
+      cellA1.value  = '🎯 Collaborateur';
+      cellA1.font   = boldFont(COLORS.headerText, 11);
+      cellA1.fill   = makeFill(COLORS.headerBg);
+      cellA1.alignment = { vertical: 'middle', horizontal: 'left', wrapText: false };
+      cellA1.border = thinBorder;
+
+      // Competence headers
+      comps.forEach((comp, i) => {
+        const cell = headerRow.getCell(i + 2);
+        cell.value  = comp;
+        cell.font   = boldFont(COLORS.headerText, 10);
+        cell.fill   = makeFill(COLORS.headerBg);
+        cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+        cell.border = thinBorder;
+      });
+
+      // ── Data rows ────────────────────────────────────────────
+      this.matrice.collaborateurs.forEach((row: CollabRow, rowIdx: number) => {
+        const dataRow   = ws.getRow(rowIdx + 2);
+        dataRow.height  = 24;
+        const isAlt     = rowIdx % 2 === 1;
+
+        // Collaborateur cell
+        const collabCell = dataRow.getCell(1);
+        collabCell.value  = `${row.prenom} ${row.nom}  •  ${row.poste}`;
+        collabCell.font   = boldFont(COLORS.collabText, 10);
+        collabCell.fill   = makeFill(isAlt ? COLORS.rowAlt : COLORS.collabBg);
+        collabCell.alignment = { vertical: 'middle', horizontal: 'left' };
+        collabCell.border = thinBorder;
+
+        // Level cells
+        comps.forEach((comp, colIdx) => {
+          const niveau  = row.niveaux[comp] as string | null;
+          const cell    = dataRow.getCell(colIdx + 2);
+          const palette = this.getExcelNiveauPalette(niveau, COLORS);
+
+          cell.value  = palette.label;
+          cell.font   = boldFont(palette.font, 9);
+          cell.fill   = makeFill(palette.bg);
+          cell.alignment = { vertical: 'middle', horizontal: 'center' };
+          cell.border = thinBorder;
+        });
+      });
+
+      // ── Footer legend row ────────────────────────────────────
+      const legendRowIdx = this.matrice.collaborateurs.length + 3;
+      const legendRow    = ws.getRow(legendRowIdx);
+      legendRow.height   = 18;
+
+      const legends = [
+        { label: 'EXP = Expert',        bg: COLORS.expert.bg,        font: COLORS.expert.font },
+        { label: 'AVA = Avancé',         bg: COLORS.avance.bg,        font: COLORS.avance.font },
+        { label: 'INT = Intermédiaire',  bg: COLORS.intermediaire.bg, font: COLORS.intermediaire.font },
+        { label: 'DEB = Débutant',       bg: COLORS.debutant.bg,      font: COLORS.debutant.font },
+      ];
+      legends.forEach((leg, i) => {
+        const c = legendRow.getCell(i + 2);
+        c.value  = leg.label;
+        c.font   = boldFont(leg.font, 8);
+        c.fill   = makeFill(leg.bg);
+        c.alignment = { vertical: 'middle', horizontal: 'center' };
+        c.border = thinBorder;
+      });
+
+      // ── Download ─────────────────────────────────────────────
+      const buffer  = await workbook.xlsx.writeBuffer();
+      const blob    = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = `Matrice_Competences_MAO_${new Date().toISOString().slice(0,10)}.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error('[Excel Export]', err);
+    } finally {
+      this.exportingFormat = null;
+    }
+  }
+
+  /** Map niveau string → ExcelJS color palette */
+  private getExcelNiveauPalette(
+    niveau: string | null,
+    C: any
+  ): { bg: string; font: string; label: string } {
+    switch (niveau) {
+      case 'EXPERT':        return C.expert;
+      case 'AVANCE':        return C.avance;
+      case 'INTERMEDIAIRE': return C.intermediaire;
+      case 'DEBUTANT':      return C.debutant;
+      default:              return C.empty;
+    }
   }
 
   getNiveauClass(niveau: string | null): string {

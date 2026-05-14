@@ -1,92 +1,139 @@
 <!-- ═══════════════════════════════════════════════════════════════════
-     CV PAGE — Two sections:
-     1. Interactive preview card + download button
-     2. Hidden #cv-template (off-screen, captured by html2canvas)
+     CV PAGE — Preview des données réelles + bouton génération PDF jsPDF
+     Aucune dépendance html2canvas. Template de prévisualisation simple.
      ═══════════════════════════════════════════════════════════════════ -->
 
 <div class="cv-page">
 
-  <!-- ── Interactive preview card ─────────────────────────────────── -->
-  <div class="cv-preview-wrapper">
+  <!-- ── État de chargement ──────────────────────────────────────────── -->
+  <div *ngIf="isLoading" class="cv-loading">
+    <div class="spinner"></div>
+    <p>Chargement du profil…</p>
+  </div>
 
-    <div class="preview-header">
-      <h1 class="gradient-text">Mon CV</h1>
-      <p>Générez un PDF au design Cyber/Tech en un clic</p>
-    </div>
+  <!-- ── Erreur de chargement ───────────────────────────────────────── -->
+  <div *ngIf="!isLoading && errorMsg" class="cv-error glass-card">
+    <span>⚠️ {{ errorMsg }}</span>
+    <button class="btn-retry" (click)="loadAll()">Réessayer</button>
+  </div>
 
-    <div class="preview-card glass-card">
+  <!-- ── Contenu principal ──────────────────────────────────────────── -->
+  <div *ngIf="!isLoading && !errorMsg && collaborateur" class="cv-content">
 
-      <!-- Profile summary -->
-      <div class="preview-identity">
-        <div class="preview-avatar">
-          <img *ngIf="resolvedPhotoUrl" [src]="resolvedPhotoUrl" alt="Photo"/>
-          <span *ngIf="!resolvedPhotoUrl" class="preview-initials">{{ initials }}</span>
-        </div>
-        <div class="preview-info">
-          <h2>{{ fullName || 'Chargement…' }}</h2>
-          <p class="preview-poste">{{ collaborateur?.poste }}</p>
-          <p class="preview-email">{{ collaborateur?.email }}</p>
-        </div>
-      </div>
+    <!-- ── Carte de prévisualisation ────────────────────────────────── -->
+    <div class="cv-preview glass-card">
 
-      <!-- KPI stats row -->
-      <div class="preview-kpis">
-        <div class="kpi">
-          <span class="kpi-n">{{ collaborateur?.anneesExperience || 0 }}</span>
-          <span class="kpi-l">ans exp.</span>
-        </div>
-        <div class="kpi-sep"></div>
-        <div class="kpi">
-          <span class="kpi-n">{{ competencesCount }}</span>
-          <span class="kpi-l">compétences</span>
-        </div>
-        <div class="kpi-sep"></div>
-        <div class="kpi">
-          <span class="kpi-n">{{ projetsCount }}</span>
-          <span class="kpi-l">projets</span>
-        </div>
-        <div class="kpi-sep"></div>
-        <div class="kpi">
-          <span class="kpi-n">2</span>
-          <span class="kpi-l">hackathons 🏆</span>
+      <!-- En-tête identité -->
+      <div class="cv-header">
+        <div class="cv-avatar">{{ initials }}</div>
+        <div class="cv-identity">
+          <h1 class="cv-name">{{ fullName }}</h1>
+          <p class="cv-poste">{{ collaborateur.poste }}</p>
+          <div class="cv-meta-row">
+            <span class="meta-chip">✉ {{ collaborateur.email }}</span>
+            <span class="meta-chip" *ngIf="collaborateur.telephone">📞 {{ collaborateur.telephone }}</span>
+            <span class="meta-chip">🏢 {{ collaborateur.departement }}</span>
+            <span class="meta-chip">⏱ {{ collaborateur.anneesExperience }} ans exp.</span>
+          </div>
         </div>
       </div>
 
-      <!-- Format badge -->
-      <div class="preview-format">
-        <span class="format-badge">A4 · Dark Tech · PDF</span>
-        <span class="format-badge format-secondary">html2canvas · jsPDF</span>
-      </div>
+      <div class="cv-divider"></div>
 
-      <!-- CTA -->
-      <button class="btn-download" (click)="downloadCV()" [disabled]="isGenerating">
+      <!-- Corps en deux colonnes -->
+      <div class="cv-body">
+
+        <!-- Colonne gauche : compétences -->
+        <aside class="cv-col-left">
+          <h2 class="cv-section-title">Compétences</h2>
+
+          <p *ngIf="competences.length === 0" class="cv-empty">Aucune compétence enregistrée.</p>
+
+          <div *ngFor="let s of competences" class="cv-skill-row">
+            <span class="skill-name">{{ s.nom }}</span>
+            <span class="skill-badge" [ngClass]="'badge-' + s.niveau.toLowerCase()">
+              {{ s.niveau }}
+            </span>
+          </div>
+        </aside>
+
+        <!-- Colonne droite : projets / expériences -->
+        <main class="cv-col-right">
+          <h2 class="cv-section-title">Expériences & Projets</h2>
+
+          <p *ngIf="projets.length === 0" class="cv-empty">Aucun projet enregistré.</p>
+
+          <div *ngFor="let p of projets" class="cv-project">
+            <div class="project-dot" [class.active]="p.enCours"></div>
+            <div class="project-body">
+              <div class="project-header">
+                <strong class="project-name">{{ p.nom }}</strong>
+                <span class="project-period">
+                  {{ p.dateDebut | date:'MMM yyyy' }}
+                  → {{ p.enCours ? 'Aujourd\'hui' : (p.dateFin | date:'MMM yyyy') }}
+                </span>
+              </div>
+              <p class="project-role" *ngIf="p.role">{{ p.role }}</p>
+              <p class="project-desc" *ngIf="p.description">{{ p.description }}</p>
+              <div class="project-techs" *ngIf="p.technologies">
+                <span class="tech-chip" *ngFor="let t of p.technologies.split(',')">
+                  {{ t.trim() }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </main>
+
+      </div><!-- /cv-body -->
+
+    </div><!-- /cv-preview -->
+
+    <!-- ── CTA — Téléchargement ──────────────────────────────────────── -->
+    <div class="cv-actions glass-card">
+      <div class="cv-actions-info">
+        <p class="cv-actions-title">Générer le PDF</p>
+        <p class="cv-actions-sub">
+          Génération via <strong>jsPDF natif</strong> — stable, sans dépendance externe.
+        </p>
+      </div>
+      <button
+        id="btn-download-cv"
+        class="btn-download"
+        (click)="downloadCV()"
+        [disabled]="isGenerating">
         <span *ngIf="!isGenerating">
           <svg viewBox="0 0 20 20" fill="currentColor" class="dl-icon">
-            <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            <path fill-rule="evenodd"
+              d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9
+                 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0
+                 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
           </svg>
           Télécharger mon CV (PDF)
         </span>
-        <span *ngIf="isGenerating" class="generating-state">
-          <span class="gen-spinner"></span> Capture en cours…
+        <span *ngIf="isGenerating" class="spinner-inline">
+          <span class="spin-dot"></span> Génération en cours…
         </span>
       </button>
+    </div>
 
-    </div><!-- /preview-card -->
-
-    <!-- CV History table -->
+    <!-- ── Historique ────────────────────────────────────────────────── -->
     <div class="cv-history glass-card">
       <div class="history-header">
-        <h3>Historique</h3>
+        <h3>Historique des versions</h3>
         <button class="btn-refresh" (click)="loadHistory()" [disabled]="isLoadingHistory" title="Actualiser">
-          <svg viewBox="0 0 20 20" fill="currentColor" class="refresh-icon" [class.spinning]="isLoadingHistory">
-            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+          <svg viewBox="0 0 20 20" fill="currentColor" [class.spinning]="isLoadingHistory">
+            <path fill-rule="evenodd"
+              d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002
+                 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1
+                 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0
+                 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+              clip-rule="evenodd"/>
           </svg>
         </button>
       </div>
 
-      <p *ngIf="isLoadingHistory" class="history-loading">Chargement…</p>
-
-      <p *ngIf="!isLoadingHistory && cvHistory.length === 0" class="history-empty">
+      <p *ngIf="isLoadingHistory" class="history-msg">Chargement…</p>
+      <p *ngIf="!isLoadingHistory && cvHistory.length === 0" class="history-msg">
         Aucun CV généré pour le moment.
       </p>
 
@@ -102,15 +149,15 @@
         <tbody>
           <tr *ngFor="let cv of cvHistory">
             <td><span class="version-badge">v{{ cv.version }}</span></td>
-            <td>{{ cv.dateGeneration | date:'dd/MM/yyyy HH:mm':'':'fr' }}</td>
+            <td>{{ cv.dateGeneration | date:'dd/MM/yyyy HH:mm' : '' : 'fr' }}</td>
             <td><span class="format-tag">{{ cv.format }}</span></td>
             <td class="action-cell">
-              <div *ngIf="deleteConfirmId !== cv.id" class="action-btns">
-                <button class="btn-icon-sm" (click)="confirmDeleteCv(cv.id)" title="Supprimer">🗑️</button>
+              <div *ngIf="deleteConfirmId !== cv.id">
+                <button class="btn-del" (click)="confirmDeleteCv(cv.id)" title="Supprimer">🗑️</button>
               </div>
               <div *ngIf="deleteConfirmId === cv.id" class="inline-confirm">
                 <button class="btn-danger-xs" (click)="executeDeleteCv(cv.id)">Oui</button>
-                <button class="btn-ghost-xs" (click)="deleteConfirmId = null">Non</button>
+                <button class="btn-ghost-xs"  (click)="deleteConfirmId = null">Non</button>
               </div>
             </td>
           </tr>
@@ -118,181 +165,6 @@
       </table>
     </div><!-- /cv-history -->
 
-  </div><!-- /preview-wrapper -->
-
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       HIDDEN CV TEMPLATE — captured by html2canvas
-       Position: off-screen (visibility:hidden / left:-9999px)
-       Exact A4 width at 96dpi = 794px
-       ═══════════════════════════════════════════════════════════════ -->
-  <div
-    id="cv-template"
-    #cvTemplate
-    class="cv-tpl"
-    aria-hidden="true"
-  >
-
-    <!-- ══ LEFT SIDEBAR ══════════════════════════════════════════ -->
-    <aside class="cv-sidebar">
-
-      <!-- Photo -->
-      <div class="cv-photo-wrap">
-        <img *ngIf="resolvedPhotoUrl" [src]="resolvedPhotoUrl" alt="" class="cv-photo"/>
-        <div *ngIf="!resolvedPhotoUrl" class="cv-photo-fallback">{{ initials }}</div>
-        <div class="cv-photo-ring"></div>
-      </div>
-
-      <!-- Contact -->
-      <div class="cv-section">
-        <h4 class="cv-section-title">Contact</h4>
-        <ul class="cv-contact-list">
-          <li *ngIf="collaborateur?.email">
-            <span class="cv-icon">✉</span>
-            <span>{{ collaborateur?.email }}</span>
-          </li>
-          <li *ngIf="collaborateur?.telephone">
-            <span class="cv-icon">📞</span>
-            <span>{{ collaborateur?.telephone }}</span>
-          </li>
-          <li>
-            <span class="cv-icon">🔗</span>
-            <span>linkedin.com/in/{{ collaborateur?.prenom?.toLowerCase() }}-{{ collaborateur?.nom?.toLowerCase() }}</span>
-          </li>
-          <li>
-            <span class="cv-icon">🐙</span>
-            <span>github.com/{{ collaborateur?.prenom?.toLowerCase() }}{{ collaborateur?.nom?.toLowerCase() }}</span>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Compétences avec jauges -->
-      <div class="cv-section">
-        <h4 class="cv-section-title">Compétences</h4>
-        <div class="cv-skills">
-          <div class="cv-skill" *ngFor="let s of cvSkills">
-            <div class="cv-skill-header">
-              <span class="cv-skill-name">{{ s.nom }}</span>
-              <span class="cv-skill-level">{{ s.niveau }}</span>
-            </div>
-            <div class="cv-gauge-track">
-              <div
-                class="cv-gauge-fill"
-                [style.width.%]="s.pct"
-              ></div>
-            </div>
-          </div>
-
-          <!-- Placeholder skills if no data yet -->
-          <div class="cv-skill" *ngIf="cvSkills.length === 0">
-            <div class="cv-skill-header">
-              <span class="cv-skill-name">Angular</span>
-              <span class="cv-skill-level">AVANCÉ</span>
-            </div>
-            <div class="cv-gauge-track">
-              <div class="cv-gauge-fill" style="width:75%"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Formation -->
-      <div class="cv-section">
-        <h4 class="cv-section-title">Formation</h4>
-        <div class="cv-formation" *ngFor="let f of formations">
-          <div class="cv-form-diplome">{{ f.diplome }}</div>
-          <div class="cv-form-etab">{{ f.etablissement }}</div>
-          <div class="cv-form-year">{{ f.annee }}</div>
-          <div class="cv-form-mention" *ngIf="f.mention">{{ f.mention }}</div>
-        </div>
-      </div>
-
-    </aside><!-- /sidebar -->
-
-    <!-- ══ RIGHT MAIN CONTENT ════════════════════════════════════ -->
-    <main class="cv-main">
-
-      <!-- Hero: Name + Poste + divider -->
-      <div class="cv-hero">
-        <h1 class="cv-name">{{ fullName || 'Hiba Tizaoui' }}</h1>
-        <p class="cv-poste">{{ collaborateur?.poste || 'Développeuse Full-Stack &amp; Cybersécurité' }}</p>
-        <div class="cv-divider"></div>
-      </div>
-
-      <!-- Summary -->
-      <div class="cv-bloc">
-        <h3 class="cv-bloc-title">Profil</h3>
-        <p class="cv-summary">
-          Développeuse Full-Stack passionnée par la Cybersécurité, spécialisée en Angular,
-          Spring Boot et architecture Cloud. {{ collaborateur?.anneesExperience || 3 }} ans
-          d'expérience en conception d'applications critiques, double lauréate de hackathons
-          nationaux en Sécurité et Intelligence Artificielle.
-        </p>
-      </div>
-
-      <!-- Expériences -->
-      <div class="cv-bloc">
-        <h3 class="cv-bloc-title">Expériences</h3>
-
-        <div class="cv-exp" *ngFor="let p of projets | slice:0:4; let i = index">
-          <div class="cv-exp-dot" [class.active]="p.enCours"></div>
-          <div class="cv-exp-body">
-            <div class="cv-exp-header">
-              <span class="cv-exp-title">{{ p.role || 'Développeur' }}</span>
-              <span class="cv-exp-date">
-                {{ p.dateDebut | date:'MMM yyyy' }} →
-                {{ p.enCours ? 'Aujourd\'hui' : (p.dateFin | date:'MMM yyyy') }}
-              </span>
-            </div>
-            <div class="cv-exp-project">{{ p.nom }}</div>
-            <p class="cv-exp-desc">{{ p.description }}</p>
-            <div class="cv-tech-chips" *ngIf="p.technologies">
-              <span class="cv-chip" *ngFor="let t of p.technologies.split(',').slice(0,5)">
-                {{ t.trim() }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Fallback if no projets loaded -->
-        <div class="cv-exp" *ngIf="projets.length === 0">
-          <div class="cv-exp-dot active"></div>
-          <div class="cv-exp-body">
-            <div class="cv-exp-header">
-              <span class="cv-exp-title">Développeuse Full-Stack</span>
-              <span class="cv-exp-date">Jan 2024 → Aujourd'hui</span>
-            </div>
-            <div class="cv-exp-project">Refonte Plateforme RH — MAO Conseil</div>
-            <p class="cv-exp-desc">
-              Architecture et développement d'une application de gestion RH
-              avec Angular 17, Spring Boot 3 et PostgreSQL.
-            </p>
-            <div class="cv-tech-chips">
-              <span class="cv-chip">Angular</span>
-              <span class="cv-chip">Spring Boot</span>
-              <span class="cv-chip">Docker</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Palmarès Hackathon -->
-      <div class="cv-bloc">
-        <h3 class="cv-bloc-title">Palmarès</h3>
-        <div class="cv-palmares-grid">
-          <div class="cv-palmares-card" *ngFor="let p of palmares">
-            <span class="cv-palmares-emoji">{{ p.emoji }}</span>
-            <div class="cv-palmares-info">
-              <div class="cv-palmares-title">{{ p.title }}</div>
-              <div class="cv-palmares-event">{{ p.event }}</div>
-              <div class="cv-palmares-date">{{ p.date }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </main><!-- /cv-main -->
-
-  </div><!-- /cv-tpl -->
+  </div><!-- /cv-content -->
 
 </div><!-- /cv-page -->

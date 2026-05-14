@@ -1,32 +1,51 @@
+// ══════════════════════════════════════════════════════════════════════
+// LISTE COLLABS — Dark Glassmorphism Theme
+// Rewrote: all 'background: white' replaced with glass surfaces,
+// light text colors mapped to design tokens, inputs styled dark.
+// ══════════════════════════════════════════════════════════════════════
+
+$cyan:   #38bdf8;
+$violet: #818cf8;
+$green:  #34d399;
+$muted:  #94a3b8;
+
 .liste-page {
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
+// ── Page header ────────────────────────────────────────────────────────
 .page-header {
   h1 {
     font-size: 28px;
     font-weight: 700;
-    color: #1B2A4A;
+    background: linear-gradient(135deg, $violet, $cyan);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin: 0;
   }
   p {
-    color: #64748B;
+    color: $muted;
     margin-top: 4px;
     font-size: 14px;
   }
 }
 
+// ── Filter bar ─────────────────────────────────────────────────────────
 .filter-bar {
   display: flex;
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
-  background: white;
-  padding: 16px 20px;
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 16px 20px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 
   .search-input-wrapper {
     position: relative;
@@ -36,14 +55,20 @@
     input {
       width: 100%;
       padding: 10px 12px 10px 38px;
-      border: 1px solid #CBD5E1;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       font-size: 14px;
       outline: none;
-      transition: border-color 0.2s;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-primary, #f1f5f9);
+      font-family: var(--font-sans);
+      transition: border-color 0.2s, box-shadow 0.2s;
+
+      &::placeholder { color: rgba(148, 163, 184, 0.5); }
 
       &:focus {
-        border-color: #2E7CF6;
+        border-color: $cyan;
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
       }
     }
 
@@ -52,7 +77,7 @@
       left: 12px;
       top: 50%;
       transform: translateY(-50%);
-      color: #94A3B8;
+      color: $muted;
     }
   }
 
@@ -63,67 +88,74 @@
     select, .comp-input {
       width: 100%;
       padding: 10px 12px;
-      border: 1px solid #CBD5E1;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       font-size: 14px;
-      background: white;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-primary, #f1f5f9);
       cursor: pointer;
-      color: #374151;
       outline: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
+
+      option {
+        background: #1e293b;
+        color: #f1f5f9;
+      }
 
       &:focus {
-        border-color: #2E7CF6;
+        border-color: $cyan;
+        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
       }
     }
   }
 
   .btn-reset {
-    background: #FEE2E2;
-    color: #DC2626;
-    border: none;
+    background: rgba(248, 113, 113, 0.1);
+    color: #f87171;
+    border: 1px solid rgba(248, 113, 113, 0.25);
     border-radius: 8px;
     padding: 10px 16px;
     cursor: pointer;
     font-size: 13px;
     font-weight: 500;
-    transition: background 0.2s;
+    transition: all 0.2s;
 
     &:hover {
-      background: #FECACA;
+      background: rgba(248, 113, 113, 0.2);
+      border-color: rgba(248, 113, 113, 0.4);
     }
   }
 }
 
+// ── Cards grid ─────────────────────────────────────────────────────────
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 
-  @media (max-width: 1100px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: 640px) {
-    grid-template-columns: 1fr;
-  }
+  @media (max-width: 1100px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 640px)  { grid-template-columns: 1fr; }
 }
 
+// ── Collab card ────────────────────────────────────────────────────────
 .collab-card {
-  background: white;
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
   cursor: pointer;
-  transition: all 0.2s;
-  border: 2px solid transparent;
+  transition: all 0.25s;
   display: flex;
   flex-direction: column;
 
   &:hover {
-    border-color: #2E7CF6;
+    border-color: rgba(56, 189, 248, 0.4);
     transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(46,124,246,0.12);
+    box-shadow: 0 8px 32px rgba(56, 189, 248, 0.12),
+                0 0 0 1px rgba(56, 189, 248, 0.2);
   }
 
   .card-header {
@@ -144,24 +176,21 @@
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
 
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
+      img { width: 100%; height: 100%; object-fit: cover; }
     }
 
     .card-identity {
       h3 {
         font-size: 15px;
         font-weight: 600;
-        color: #1B2A4A;
+        color: var(--text-primary, #f1f5f9);
         margin: 0;
       }
       .poste {
         font-size: 12px;
-        color: #64748B;
+        color: $muted;
         margin-top: 3px;
       }
     }
@@ -174,8 +203,9 @@
     flex-wrap: wrap;
 
     .dept-badge {
-      background: #EFF6FF;
-      color: #1D4ED8;
+      background: rgba(129, 140, 248, 0.12);
+      color: $violet;
+      border: 1px solid rgba(129, 140, 248, 0.25);
       border-radius: 20px;
       padding: 3px 10px;
       font-size: 11px;
@@ -183,8 +213,9 @@
     }
 
     .exp-badge {
-      background: #F0FDF4;
-      color: #065F46;
+      background: rgba(52, 211, 153, 0.1);
+      color: $green;
+      border: 1px solid rgba(52, 211, 153, 0.25);
       border-radius: 20px;
       padding: 3px 10px;
       font-size: 11px;
@@ -196,8 +227,8 @@
     display: flex;
     align-items: center;
     padding: 12px 0;
-    border-top: 1px solid #F1F5F9;
-    border-bottom: 1px solid #F1F5F9;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     margin-bottom: 12px;
 
     .stat-item {
@@ -208,12 +239,11 @@
         display: block;
         font-size: 18px;
         font-weight: 700;
-        color: #1B2A4A;
+        color: $cyan;
       }
-
       .stat-lbl {
         font-size: 10px;
-        color: #94A3B8;
+        color: $muted;
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
@@ -222,7 +252,7 @@
     .stat-divider {
       width: 1px;
       height: 24px;
-      background: #E2E8F0;
+      background: rgba(255, 255, 255, 0.08);
     }
   }
 
@@ -234,8 +264,9 @@
     flex: 1;
 
     .comp-badge {
-      background: #F1F5F9;
-      color: #475569;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-secondary, #94a3b8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 4px;
       padding: 2px 8px;
       font-size: 11px;
@@ -246,13 +277,15 @@
   .card-footer {
     text-align: right;
     .voir-profil {
-      color: #2E7CF6;
+      color: $cyan;
       font-size: 13px;
       font-weight: 600;
+      &:hover { text-decoration: underline; }
     }
   }
 }
 
+// ── Pagination ─────────────────────────────────────────────────────────
 .pagination {
   display: flex;
   gap: 12px;
@@ -263,8 +296,9 @@
 
   button {
     padding: 8px 16px;
-    border: 1px solid #E2E8F0;
-    background: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(30, 41, 59, 0.4);
+    color: var(--text-secondary, #94a3b8);
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
@@ -272,73 +306,74 @@
     transition: all 0.2s;
 
     &:hover:not(:disabled) {
-      border-color: #2E7CF6;
-      color: #2E7CF6;
+      border-color: $cyan;
+      color: $cyan;
+      background: rgba(56, 189, 248, 0.06);
     }
 
     &.active {
-      background: #2E7CF6;
-      color: white;
-      border-color: #2E7CF6;
+      background: linear-gradient(135deg, $violet, $cyan);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 2px 12px rgba(56, 189, 248, 0.3);
     }
 
-    &:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
+    &:disabled { opacity: 0.35; cursor: not-allowed; }
   }
 
-  .page-numbers {
-    display: flex;
-    gap: 6px;
-  }
+  .page-numbers { display: flex; gap: 6px; }
 
   .pagination-info {
     font-size: 13px;
-    color: #64748B;
+    color: $muted;
     margin-left: 12px;
+    font-family: var(--font-mono);
   }
 }
 
+// ── Empty state ────────────────────────────────────────────────────────
 .empty-state {
   text-align: center;
   padding: 60px 0;
-  background: white;
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 
-  .empty-icon {
-    font-size: 48px;
-    margin-bottom: 16px;
-    opacity: 0.5;
-  }
+  .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
 
-  p {
-    color: #64748B;
-    font-size: 16px;
-    margin-bottom: 20px;
-  }
+  p { color: $muted; font-size: 16px; margin-bottom: 20px; }
 
   .btn-ghost {
     background: transparent;
-    border: 1px solid #2E7CF6;
-    color: #2E7CF6;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: $cyan;
     padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
     transition: all 0.2s;
-
-    &:hover {
-      background: rgba(46, 124, 246, 0.05);
-    }
+    &:hover { background: rgba(56, 189, 248, 0.08); }
   }
 }
 
+// ── Skeleton ────────────────────────────────────────────────────────────
 .skeleton-collab-card {
   height: 280px;
-  background: linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%);
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.04) 75%
+  );
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: shimmer 1.5s ease-in-out infinite;
   border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
